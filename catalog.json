@@ -1,0 +1,147 @@
+{
+  "products": {
+    "machinery": {
+      "label": "Machinery (EN IEC 60204-1)",
+      "variants": [
+        {
+          "id": "robot",
+          "label": "Industrial robots",
+          "eu": [
+            "Apply EN ISO 10218-1/-2 (industrial robots).",
+            "Consider ISO/TS 15066 for collaborative robots.",
+            "EMC 2014/30/EU applies; LVD not applied under Machinery."
+          ]
+        },
+        {
+          "id": "packaging",
+          "label": "Packaging machinery",
+          "eu": ["Apply EN 415 series (packaging machinery)."]
+        },
+        {
+          "id": "lifting",
+          "label": "Lifting equipment/accessories",
+          "eu": ["Apply EN 13155 (lifting accessories); check hoist/winch standards."]
+        },
+        {
+          "id": "press",
+          "label": "Presses",
+          "eu": ["Apply EN ISO 16092 series (presses)."]
+        },
+        {
+          "id": "woodworking",
+          "label": "Woodworking machinery",
+          "eu": ["Apply relevant type-C: e.g., EN 1870-x, EN 859, etc."]
+        }
+      ]
+    },
+
+    "electrical-equipment-measurement": {
+      "label": "Electrical equipment for measurement, control and laboratory use (EN 61010-1)",
+      "variants": [
+        {
+          "id": "tmc",
+          "label": "Test & measurement circuits",
+          "eu": [
+            "Safety: EN 61010-2-030.",
+            "EMC: EN 61326-1.",
+            "Capture measurement category (CAT I–IV)."
+          ]
+        },
+        {
+          "id": "control",
+          "label": "Control equipment",
+          "eu": ["Safety: EN 61010-2-201.", "EMC: EN 61326-1."]
+        },
+        {
+          "id": "ivd",
+          "label": "IVD medical",
+          "eu": [
+            "Safety: EN 61010-2-101.",
+            "May fall under EU MDR depending on intended use."
+          ]
+        },
+        {
+          "id": "auto-anal",
+          "label": "Automatic analyzers",
+          "eu": ["Safety: EN 61010-2-081.", "EMC: EN 61326-1."]
+        }
+      ],
+      "crossCuts": [
+        "If wireless, RED 2014/53/EU applies.",
+        "If batteries present, apply EU Battery Regulation and UN 38.3."
+      ]
+    },
+
+    "low-voltage-cables": {
+      "label": "Low-voltage energy cables (EN 50525-1)",
+      "variants": [
+        {
+          "id": "pvc-fixed",
+          "label": "PVC, fixed installation",
+          "eu": [
+            "Select the matching EN 50525-2-xx part.",
+            "If fixed installation, apply CPR EN 50575 (DoP + reaction-to-fire class)."
+          ]
+        },
+        {
+          "id": "xlpe-outdoor",
+          "label": "XLPE, outdoor/UV",
+          "eu": [
+            "Select matching EN 50525-2-xx part (outdoor/UV).",
+            "If fixed installation, apply CPR EN 50575 (DoP + class)."
+          ]
+        },
+        {
+          "id": "lszh",
+          "label": "LSZH, fixed installation",
+          "eu": [
+            "Use LSZH 50525-2-xx part.",
+            "Apply CPR EN 50575; record class (Aca–Fca)."
+          ]
+        }
+      ],
+      "keys": [
+        "insulation/jacket (PVC, XLPE, LSZH)",
+        "installation (fixed vs portable)",
+        "environment (indoor/outdoor/UV)",
+        "CPR class (Aca–Fca)",
+        "halogen-free/smoke"
+      ]
+    },
+
+    "audio-video-equipment": {
+      "label": "Audio/video, ICT equipment (EN IEC 62368-1)",
+      "variants": [
+        {
+          "id": "display",
+          "label": "Electronic display/TV/Monitor",
+          "eu": [
+            "EU Energy Label (2019/2013) for electronic displays; check ecodesign where applicable."
+          ]
+        },
+        {
+          "id": "router-wifi",
+          "label": "Router/IoT/Wi-Fi",
+          "eu": [
+            "RED 2014/53/EU; ETSI EN 300 328, EN 301 489-1/-17."
+          ],
+          "uk": [
+            "GB Radio Equipment Regulations 2017."
+          ]
+        },
+        {
+          "id": "av-generic",
+          "label": "Generic A/V ICT (no radio)",
+          "eu": [
+            "LVD/EMC base + RoHS/WEEE apply as relevant."
+          ]
+        }
+      ],
+      "crossCuts": [
+        "LVD/EMC base",
+        "RoHS/WEEE where in scope",
+        "External power supply ecodesign if applicable"
+      ]
+    }
+  }
+}
