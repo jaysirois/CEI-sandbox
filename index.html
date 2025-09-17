@@ -283,7 +283,9 @@ function getMachineryVariants() {
   return Array.isArray(v) ? v : Object.keys(v).map(id => ({ id, ...v[id] }));
 }
 function getCatalogVariant(id){
-  return getMachineryVariants().find(v => v.id === id) || null;
+  const cat = window.catalog;
+  const list = cat?.products?.machinery?.variants || [];
+  return list.find(v => v.id === id) || null;
 }
 
 /* ------------ Helpers / search ------------- */
@@ -389,9 +391,13 @@ function clearVariantUI() {
 function populateMachineryVariants(){
   const sel = document.getElementById('mach-variant');
   sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
-  getMachineryVariants().forEach(v=>{
+
+  const cat = window.catalog;
+  const variants = cat?.products?.machinery?.variants || [];
+  variants.forEach(v => {
     const opt = document.createElement('option');
-    opt.value = v.id; opt.textContent = v.label;
+    opt.value = v.id;
+    opt.textContent = v.label;
     sel.appendChild(opt);
   });
 }
@@ -583,9 +589,10 @@ document.getElementById('product').addEventListener('change', ()=>{
     showMachineryBlock(false);
   }
 });
-document.getElementById('mach-variant').addEventListener('change', ()=>{
+document.getElementById('mach-variant').addEventListener('change', () => {
   const v = getCatalogVariant(document.getElementById('mach-variant').value);
   renderVariantDetails(v);
+  applyVariantAttributeHints(v);
 });
 
 /* ------------ Generate ------------- */
@@ -688,3 +695,4 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
