@@ -592,7 +592,6 @@ document.getElementById('product').addEventListener('change', ()=>{
 document.getElementById('mach-variant').addEventListener('change', () => {
   const v = getCatalogVariant(document.getElementById('mach-variant').value);
   renderVariantDetails(v);
-  applyVariantAttributeHints(v);
 });
 
 /* ------------ Generate ------------- */
@@ -695,4 +694,5 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
