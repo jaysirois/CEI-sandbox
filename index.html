@@ -278,12 +278,11 @@ async function loadCatalog() {
   window.catalog = CATALOG;
 }
 
-/* Normalize variants whether array or object */
+// Normalize: works with EITHER variants: [] OR variants: {id:{...}}
 function getMachineryVariants() {
   const v = CATALOG?.products?.machinery?.variants;
   if (!v) return [];
-  // If it's already an array of {id,label,...}, return as-is; if it's an object map, convert to array
-  return Array.isArray(v) ? v : Object.keys(v).map(id => ({ id, ...v[id] }));
+  return Array.isArray(v) ? v : Object.keys(v).map(id => ({ id, ...(v[id] || {}) }));
 }
 
 function getCatalogVariant(id){
@@ -394,8 +393,7 @@ function clearVariantUI() {
 function populateMachineryVariants(){
   const sel = document.getElementById('mach-variant');
   sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
-  const variants = getMachineryVariants();   // <-- normalized
-  variants.forEach(v => {
+  getMachineryVariants().forEach(v => {
     const opt = document.createElement('option');
     opt.value = v.id;
     opt.textContent = v.label || v.id;
@@ -406,26 +404,91 @@ function populateMachineryVariants(){
 /* no-op for now (prevents errors if called) */
 function applyVariantAttributeHints(/*variant*/){}
 
-/* Render option groups from JSON: variant.options.*.choices */
+// Render variant detail pills for BOTH schemas
 function renderVariantDetails(variant){
   const box = document.getElementById('variant-details');
   box.innerHTML = '';
-  box.style.display='none';
+  box.style.display = 'none';
   if(!variant) return;
-  const groups = variant.options || {};
-  const groupKeys = Object.keys(groups);
-  if(!groupKeys.length) return;
 
-  box.style.display='block';
-
-  if (Array.isArray(variant.base_standards) && variant.base_standards.length){
+  const base = variant.base_standards || variant.baseStandards || [];
+  if (base.length){
     const info = document.createElement('div');
     info.className = 'muted';
-    info.textContent = 'Variant base standards: ' + variant.base_standards.join(', ');
+    info.textContent = 'Variant base standards: ' + base.join(', ');
     box.appendChild(info);
   }
 
-  groupKeys.forEach(gkey=>{
+// helper to append a pill group
+  const addGroup = (title) => {
+    box.style.display = 'block';
+    const t = document.createElement('div');
+    t.className = 'group-title';
+    t.textContent = title;
+    box.appendChild(t);
+    const wrap = document.createElement('div');
+    box.appendChild(wrap);
+    return wrap;
+  };
+
+    // --- Schema A: object + options.*.choices (uses data-adds) ---
+  if (variant.options && typeof variant.options === 'object') {
+    for (const [gkey, g] of Object.entries(variant.options)) {
+      const wrap = addGroup(g.label || gkey);
+      (g.choices || []).forEach(choice => {
+        const id = `${variant.id}-opt-${gkey}-${choice.id}`;
+        const pill = document.createElement('label');
+        pill.className = 'pill';
+        pill.innerHTML = `<input type="checkbox" id="${id}" data-adds="${(choice.adds||[]).join('::')}"> ${choice.label}`;
+        wrap.appendChild(pill);
+      });
+    }
+  }
+
+  // --- Schema B: array + details.* (uses data-std) ---
+  if (variant.details && typeof variant.details === 'object') {
+    const d = variant.details;
+    const map = {
+      driveTypes: 'Press drive type',
+      accessories: 'Lifting accessory type',
+      types: 'Packaging machine type (EN 415 series)',
+      families: 'Woodworking family',
+      dust: 'Dust / explosion risk'
+    };
+    for (const [key, arr] of Object.entries(d)) {
+      if (!Array.isArray(arr) || !arr.length) continue;
+      const wrap = addGroup(map[key] || key);
+      arr.forEach(c => {
+        const id = `${variant.id}-det-${key}-${c.id}`;
+        const pill = document.createElement('label');
+        pill.className = 'pill';
+        pill.innerHTML = `<input type="checkbox" id="${id}" data-std="${c.standard||''}"> ${c.label}`;
+        wrap.appendChild(pill);
+      });
+    }
+    // Robots: collaborative flag (common in your details)
+    if (variant.id === 'robot' && d.collaborative) {
+      const wrap = addGroup('Robot mode / application');
+      const pill = document.createElement('label');
+      pill.className = 'pill';
+      pill.innerHTML = `<input type="checkbox" id="robot-cobot" data-std="ISO/TS 15066"> Collaborative operation (ISO/TS 15066)`;
+      wrap.appendChild(pill);
+    }
+  }
+}
+  // Keep attribute hints working
+function applyVariantAttributeHints(variant){
+  document.querySelectorAll('.attribute-item label').forEach(l => l.classList.remove('auto-suggest'));
+  const hints = variant?.suggestAttributes || [];
+  hints.forEach(attrId => {
+    const cb = document.getElementById(attrId);
+    if (cb){
+      const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
+      if (lbl) lbl.classList.add('auto-suggest');
+    }
+  });
+}
+    groupKeys.forEach(gkey=>{
     const g = groups[gkey];
     const title = document.createElement('div');
     title.className = 'group-title';
@@ -511,27 +574,26 @@ function baseFrameworks(product, attrs, destinations){
   return res;
 }
 
-/* ------------ Variant-driven standards ------------- */
+// Collect standards from whichever schema is in use
 function variantStandards(product){
-  if(product!=='machinery') return [];
-  const out=[]; const add=(t)=>out.push({text:t,specificMarkets:['eu']}); // EN focus
+  if(product !== 'machinery') return [];
+  const out = [];
+  const add = (t) => out.push({ text: t, specificMarkets: ['eu'] });
+
   const vId = document.getElementById('mach-variant').value;
-  if(vId==='none') return out;
+  if (vId === 'none') return out;
 
-  const variant = getCatalogVariant(vId);
-  if(!variant) return out;
+  const v = getCatalogVariant(vId);
+  if (!v) return out;
 
-  (variant.base_standards||[]).forEach(s => add(s));
+  (v.base_standards || v.baseStandards || []).forEach(s => add(s));
 
-  const groups = variant.options || {};
-  Object.keys(groups).forEach(gkey=>{
-    (groups[gkey].choices||[]).forEach(choice=>{
-      const cid = `${variant.id}-${gkey}-${choice.id}`;
-      const cb = document.getElementById(cid);
-      if(cb && cb.checked){
-        (choice.adds||[]).forEach(std => add(std));
-      }
-    });
+  // From pills: handle both data-adds and data-std
+  document.querySelectorAll('#variant-details input[type="checkbox"]:checked').forEach(ch => {
+    const adds = ch.getAttribute('data-adds');
+    const std = ch.getAttribute('data-std');
+    if (adds) adds.split('::').filter(Boolean).forEach(s => add(s));
+    if (std) add(std);
   });
 
   return out;
@@ -694,6 +756,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
