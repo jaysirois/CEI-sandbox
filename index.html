@@ -274,18 +274,20 @@ async function loadCatalog() {
   const res = await fetch(CATALOG_URL, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to load catalog.json: ' + res.status);
   CATALOG = await res.json();
+  // expose for debugging if you like
+  window.catalog = CATALOG;
 }
 
 /* Normalize variants whether array or object */
 function getMachineryVariants() {
   const v = CATALOG?.products?.machinery?.variants;
   if (!v) return [];
+  // If it's already an array of {id,label,...}, return as-is; if it's an object map, convert to array
   return Array.isArray(v) ? v : Object.keys(v).map(id => ({ id, ...v[id] }));
 }
+
 function getCatalogVariant(id){
-  const cat = window.catalog;
-  const list = cat?.products?.machinery?.variants || [];
-  return list.find(v => v.id === id) || null;
+  return getMachineryVariants().find(v => v.id === id) || null;
 }
 
 /* ------------ Helpers / search ------------- */
@@ -388,21 +390,23 @@ function clearVariantUI() {
   if (sel) sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
   document.getElementById('variant-details')?.replaceChildren();
 }
+
 function populateMachineryVariants(){
   const sel = document.getElementById('mach-variant');
   sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
-
-  const cat = window.catalog;
-  const variants = cat?.products?.machinery?.variants || [];
+  const variants = getMachineryVariants();
   variants.forEach(v => {
     const opt = document.createElement('option');
     opt.value = v.id;
-    opt.textContent = v.label;
+    opt.textContent = v.label || v.id;
     sel.appendChild(opt);
   });
 }
 
-/* Render generic option groups from JSON: variant.options.*.choices */
+/* no-op for now (prevents errors if called) */
+function applyVariantAttributeHints(/*variant*/){}
+
+/* Render option groups from JSON: variant.options.*.choices */
 function renderVariantDetails(variant){
   const box = document.getElementById('variant-details');
   box.innerHTML = '';
@@ -414,7 +418,6 @@ function renderVariantDetails(variant){
 
   box.style.display='block';
 
-  // Variant base standards (shown as info)
   if (Array.isArray(variant.base_standards) && variant.base_standards.length){
     const info = document.createElement('div');
     info.className = 'muted';
@@ -518,10 +521,8 @@ function variantStandards(product){
   const variant = getCatalogVariant(vId);
   if(!variant) return out;
 
-  // base standards from the variant
   (variant.base_standards||[]).forEach(s => add(s));
 
-  // add standards selected in option groups
   const groups = variant.options || {};
   Object.keys(groups).forEach(gkey=>{
     (groups[gkey].choices||[]).forEach(choice=>{
@@ -592,6 +593,7 @@ document.getElementById('product').addEventListener('change', ()=>{
 document.getElementById('mach-variant').addEventListener('change', () => {
   const v = getCatalogVariant(document.getElementById('mach-variant').value);
   renderVariantDetails(v);
+  applyVariantAttributeHints(v); // harmless no-op for now
 });
 
 /* ------------ Generate ------------- */
@@ -625,7 +627,6 @@ function generateRoadmap(){
   requirements = requirements.concat(econOperatorDuties(originSel.value, destinations, product, attrs));
   requirements = requirements.concat(certificationRequirements(certs, product, attrs, destinations));
 
-  // Render filtered by destination
   const list = document.getElementById('roadmap-list'); list.innerHTML='';
   const shown=[];
   requirements.forEach(req=>{
@@ -684,7 +685,6 @@ function exportToCSV(){
   showMachineryBlock(false);
   toggleAdvancedSection();
 
-  // If the page ships with Machinery preselected, populate immediately
   const productSel = document.getElementById('product');
   if (productSel?.value === 'machinery') {
     showMachineryBlock(true);
@@ -694,5 +694,6 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
