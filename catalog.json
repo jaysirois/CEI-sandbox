@@ -3,6 +3,21 @@
     "label": "Machinery (EN IEC 60204-1)",
     "base_standards": ["EN ISO 12100", "EN IEC 60204-1"],
     "variants": {
+      "press": {
+        "label": "Presses",
+        "base_standards": ["EN ISO 16092-1"],
+        "options": {
+          "drive": {
+            "label": "Press drive type",
+            "multi": true,
+            "choices": [
+              { "id": "mech", "label": "Mechanical press", "adds": ["EN ISO 16092-2"] },
+              { "id": "hyd",  "label": "Hydraulic press",  "adds": ["EN ISO 16092-3"] },
+              { "id": "pneu", "label": "Pneumatic press",  "adds": ["EN ISO 16092-4"] }
+            ]
+          }
+        }
+      },
       "robot": {
         "label": "Industrial robots",
         "base_standards": ["EN ISO 10218-1", "EN ISO 10218-2"],
@@ -11,23 +26,21 @@
             "label": "Robot mode / application",
             "multi": true,
             "choices": [
-              { "id":"collab",   "label":"Collaborative operation (hand guiding, power/force limiting)", "adds":["ISO/TS 15066"] },
-              { "id":"guarded",  "label":"Guarded cell with interlocks", 
-                "adds":["EN ISO 14120 (guards)","EN ISO 14119 (interlocking)","EN ISO 13857 (safety distances)"] },
-              { "id":"teaching", "label":"Manual teaching / enabling device", "adds":["EN ISO 10218 integration notes (teach)"] }
+              { "id": "collab",  "label": "Collaborative operation (hand guiding, power/force limiting)", "adds": ["ISO/TS 15066"] },
+              { "id": "guarded", "label": "Guarded cell with interlocks", "adds": ["EN ISO 14120","EN ISO 14119","EN ISO 13857"] },
+              { "id": "teach",   "label": "Manual teaching / enabling device", "adds": ["EN ISO 10218 integration notes (teach)"] }
             ]
           },
           "eoat": {
             "label": "End effector / process hazards",
             "multi": true,
             "choices": [
-              { "id":"sharp", "label":"Cutting/sharp tools", "adds":["Risk reduction per EN ISO 12100; guarding per 14120/13857"] },
-              { "id":"hot",   "label":"Hot process (welding, thermal)", "adds":["Process-specific guarding; ventilation (SME to confirm)"] }
+              { "id": "sharp", "label": "Cutting/sharp tools", "adds": ["Risk reduction per EN ISO 12100; guarding per 14120/13857"] },
+              { "id": "hot",   "label": "Hot process (welding, thermal)", "adds": ["Process-specific guarding; ventilation (SME to confirm)"] }
             ]
           }
         }
       },
-
       "packaging": {
         "label": "Packaging machinery",
         "base_standards": ["EN 415-1 (general)"],
@@ -36,23 +49,22 @@
             "label": "Machine type (EN 415 series)",
             "multi": true,
             "choices": [
-              { "id":"ffs",        "label":"Form/fill/seal",          "adds":["EN 415-3 (FFS)"] },
-              { "id":"wrapping",   "label":"Wrapping",                "adds":["EN 415-6 (wrapping)"] },
-              { "id":"palletizer", "label":"Palletizer/depalletizer", "adds":["EN 415-7 (palletizers)"] },
-              { "id":"labeller",   "label":"Labeller",                "adds":["EN 415-10 (labelling)"] },
-              { "id":"cartoner",   "label":"Cartoner/case packer",    "adds":["EN 415-2/-4 (SME to confirm exact part)"] }
+              { "id": "ffs",        "label": "Form/fill/seal",          "adds": ["EN 415-3"] },
+              { "id": "wrapping",   "label": "Wrapping",                "adds": ["EN 415-6"] },
+              { "id": "palletizer", "label": "Palletizer/depalletizer", "adds": ["EN 415-7"] },
+              { "id": "labeller",   "label": "Labeller",                "adds": ["EN 415-10"] },
+              { "id": "cartoner",   "label": "Cartoner/case packer",    "adds": ["EN 415-2/-4 (confirm exact part)"] }
             ]
           },
           "conveyors": {
             "label": "Integrated conveyors",
             "multi": true,
             "choices": [
-              { "id":"conv", "label":"Conveyors present", "adds":["Apply relevant conveyor safety standard (SME to confirm)"] }
+              { "id": "conv", "label": "Conveyors present", "adds": ["Apply relevant conveyor safety standard (SME to confirm)"] }
             ]
           }
         }
       },
-
       "lifting": {
         "label": "Lifting equipment/accessories",
         "base_standards": [],
@@ -61,17 +73,16 @@
             "label": "Equipment class",
             "multi": true,
             "choices": [
-              { "id":"attach", "label":"Non-fixed lifting attachments", "adds":["EN 13155"] },
-              { "id":"hoist",  "label":"Power-driven hoists / winches", "adds":["EN 14492-2 (hoists)", "EN 14492-1 (winches)"] },
-              { "id":"bridge", "label":"Bridge/Gantry crane",            "adds":["EN 15011","EN 13001 series (crane design)"] },
-              { "id":"mobile", "label":"Mobile crane",                   "adds":["EN 13000","EN 13001 series"] },
-              { "id":"loader", "label":"Loader crane",                   "adds":["EN 12999"] },
-              { "id":"sling",  "label":"Slings / chains / wire ropes",   "adds":["EN 1492/EN 13414 (accessories) — SME to confirm scope"] }
+              { "id": "attach", "label": "Non-fixed lifting attachments", "adds": ["EN 13155"] },
+              { "id": "hoist",  "label": "Power-driven hoists/winches",  "adds": ["EN 14492-2 (hoists)", "EN 14492-1 (winches)"] },
+              { "id": "bridge", "label": "Bridge/Gantry crane",           "adds": ["EN 15011","EN 13001 series"] },
+              { "id": "mobile", "label": "Mobile crane",                  "adds": ["EN 13000","EN 13001 series"] },
+              { "id": "loader", "label": "Loader crane",                  "adds": ["EN 12999"] },
+              { "id": "sling",  "label": "Slings / chains / wire ropes",  "adds": ["EN 818 (chain slings)","EN 1492 (web slings)","EN 13414 (wire rope slings)"] }
             ]
           }
         }
       },
-
       "woodworking": {
         "label": "Woodworking machinery",
         "base_standards": [],
@@ -80,24 +91,22 @@
             "label": "Machine family",
             "multi": true,
             "choices": [
-              { "id":"circular", "label":"Circular saws",       "adds":["EN 1870-x (specify part)"] },
-              { "id":"bandsaw",  "label":"Band saws",           "adds":["(SME) EN 1807 or applicable part"] },
-              { "id":"moulder",  "label":"Spindle moulder",     "adds":["EN 848-x (SME to confirm part)"] },
-              { "id":"planer",   "label":"Planer/thicknesser",  "adds":["(SME) applicable type-C (e.g., EN 859/other — confirm)"] },
-              { "id":"4sided",   "label":"Four-sided moulder",  "adds":["EN 12750"] }
+              { "id": "circular", "label": "Circular saws",       "adds": ["EN 1870-x (specify part)"] },
+              { "id": "bandsaw",  "label": "Band saws",           "adds": ["(SME) EN 1807 or applicable part"] },
+              { "id": "moulder",  "label": "Spindle moulder",     "adds": ["EN 848-x (confirm)"] },
+              { "id": "planer",   "label": "Planer/thicknesser",  "adds": ["(SME) applicable type-C (e.g., EN 859/other — confirm)"] },
+              { "id": "4sided",   "label": "Four-sided moulder",  "adds": ["EN 12750"] }
             ]
           },
           "dust": {
             "label": "Dust/explosion risk",
             "multi": true,
             "choices": [
-              { "id":"atex", "label":"Combustible dust present", "adds":["ATEX installation assessment (EN 60079-14) where zoning applies; extraction/filtration rules (SME to confirm)"] }
+              { "id": "atex", "label": "Combustible dust present", "adds": ["ATEX installation assessment (EN 60079-14) where zoning applies; extraction/filtration rules (SME to confirm)"] }
             ]
           }
         }
       }
-
-      /* presses variant you already added remains unchanged */
     }
   }
 }
