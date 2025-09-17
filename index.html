@@ -394,7 +394,7 @@ function clearVariantUI() {
 function populateMachineryVariants(){
   const sel = document.getElementById('mach-variant');
   sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
-  const variants = getMachineryVariants();
+  const variants = getMachineryVariants();   // <-- normalized
   variants.forEach(v => {
     const opt = document.createElement('option');
     opt.value = v.id;
@@ -694,6 +694,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
