@@ -33,9 +33,9 @@
     .req-star::after{content:" *required";color:#b00020;font-weight:600;margin-left:4px}
     .req-badge{color:#b00020;font-weight:600}
     .muted{color:#666;font-size:.9em}
-    .pill{display:inline-block;background:#eef7f7;border:1px dashed #8cc; color:#066;padding:4px 8px;border-radius:12px;margin:4px 6px 0 0}
-    .auto-suggest{outline:2px solid #a6e3a1;border-radius:4px;padding:2px 6px}
+    .pill{display:inline-block;background:#eef7f7;border:1px dashed #8cc;color:#066;padding:6px 10px;border-radius:12px;margin:6px 8px 0 0}
     .subbox{border:1px solid #d7eaea;background:#f6fbfb;border-radius:6px;padding:10px;margin-top:10px}
+    .group-title{font-weight:600;margin:6px 0 4px}
   </style>
 </head>
 <body>
@@ -77,9 +77,8 @@
         <select id="mach-variant">
           <option value="none">Select a Machinery variant</option>
         </select>
-        <div class="muted">Tip: Selecting variant/details may auto-check or suggest attributes below (<span class="auto-suggest">highlighted</span>). You can still adjust them manually.</div>
+        <div class="muted">Tip: Selecting variant/options adds the corresponding type-C standards to the results. You can still adjust attributes manually below.</div>
 
-        <!-- Variant details appear here dynamically (press drive, lifting accessory, robot mode, etc.) -->
         <div id="variant-details" class="subbox" style="display:none"></div>
       </div>
     </div>
@@ -89,7 +88,7 @@
       <h2>Select Attributes</h2>
       <input type="text" id="attributes-search" placeholder="Search attributes..." onkeyup="filterAttributes()"/>
       <div class="attributes-list" id="attributes-list">
-        <!-- Existing attributes (kept) -->
+        <!-- Common / existing -->
         <div class="attribute-item" data-products="machinery,low-voltage-switchgear,heat-pumps-airconditioners,commercial-refrigerating,air-cleaning-appliances,medical-electrical-equipment">
           <input type="checkbox" id="external-power-supply" value="external-power-supply">
           <label for="external-power-supply">External Power Supply — (EU) 2019/1782 ecodesign; safety in relevant product standard.</label>
@@ -118,26 +117,14 @@
           <input type="checkbox" id="safety-critical-component" value="safety-critical-component">
           <label for="safety-critical-component">Safety-critical component — expect tighter safety evidence per product standard.</label>
         </div>
-        <!-- New machinery-focused attributes used by variants -->
+        <!-- Machinery-focused -->
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="functional-safety" value="functional-safety">
           <label for="functional-safety">Functional safety (PL/SIL) — EN ISO 13849-1/-2 or IEC 62061.</label>
         </div>
         <div class="attribute-item" data-products="machinery">
-          <input type="checkbox" id="robot-collaborative" value="robot-collaborative">
-          <label for="robot-collaborative">Collaborative operation (cobots) — ISO/TS 15066 + ISO 10218-1/-2.</label>
-        </div>
-        <div class="attribute-item" data-products="machinery">
-          <input type="checkbox" id="hazardous-location" value="hazardous-location">
-          <label for="hazardous-location">Use in explosive atmospheres (machinery) — ATEX product/installation scope check.</label>
-        </div>
-        <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="wireless-hmi" value="wireless-hmi">
           <label for="wireless-hmi">Wireless HMI on machine — RED/FCC as applicable.</label>
-        </div>
-        <div class="attribute-item" data-products="machinery">
-          <input type="checkbox" id="software-cyber" value="software-cyber">
-          <label for="software-cyber">Software / Cybersecurity (machinery control systems).</label>
         </div>
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="hydraulics-pneumatics" value="hydraulics-pneumatics">
@@ -279,19 +266,24 @@
   </div>
 
 <script>
-/* ------------ Catalog (variants) ------------- */
-const CATALOG_URL = 'catalog.json';
+/* ------------ Catalog (one source of truth) ------------- */
+const CATALOG_URL = 'catalog.json?v=' + Date.now();   // cache-bust for GH Pages
 let CATALOG = null;
 
-async function loadCatalog(){
-  try{
-    const resp = await fetch(CATALOG_URL,{cache:'no-store'});
-    if(!resp.ok) throw new Error('catalog not found');
-    CATALOG = await resp.json();
-  }catch(e){
-    console.warn('Catalog load failed:', e);
-    CATALOG = null;
-  }
+async function loadCatalog() {
+  const res = await fetch(CATALOG_URL, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to load catalog.json: ' + res.status);
+  CATALOG = await res.json();
+}
+
+/* Normalize variants whether array or object */
+function getMachineryVariants() {
+  const v = CATALOG?.products?.machinery?.variants;
+  if (!v) return [];
+  return Array.isArray(v) ? v : Object.keys(v).map(id => ({ id, ...v[id] }));
+}
+function getCatalogVariant(id){
+  return getMachineryVariants().find(v => v.id === id) || null;
 }
 
 /* ------------ Helpers / search ------------- */
@@ -321,6 +313,8 @@ function getSelectedAttributes(){
 
 /* ------------ Show/hide Advanced & GB block ------------- */
 const EU_SET = new Set(['france','germany','italy']);
+const MARKET_GROUP = { germany:'eu', france:'eu', italy:'eu', uk:'uk', usa:'us' };
+
 function anyEUSelected(){ return getSelectedDestinations().some(x=>EU_SET.has(x)); }
 function anyUKSelected(){ return getSelectedDestinations().includes('uk'); }
 function toggleAdvancedSection(){
@@ -378,104 +372,78 @@ function updateAttributesVisibility(){
   });
 }
 
-/* ------------ Machinery variants ------------- */
+/* ------------ Machinery variants UI ------------- */
 function showMachineryBlock(show){
   document.getElementById('machinery-variant-block').style.display = show ? 'block':'none';
   if(!show){
     document.getElementById('mach-variant').value='none';
-    document.getElementById('variant-details').style.display='none';
-    document.getElementById('variant-details').innerHTML='';
-    clearAutoSuggest();
+    const box = document.getElementById('variant-details');
+    box.style.display='none'; box.innerHTML='';
   }
 }
-
+function clearVariantUI() {
+  const sel = document.getElementById('mach-variant');
+  if (sel) sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
+  document.getElementById('variant-details')?.replaceChildren();
+}
 function populateMachineryVariants(){
   const sel = document.getElementById('mach-variant');
   sel.innerHTML = '<option value="none">Select a Machinery variant</option>';
-  if(!CATALOG || !CATALOG.products || !CATALOG.products.machinery){ return; }
-  const variants = CATALOG.products.machinery.variants || [];
-  variants.forEach(v=>{
+  getMachineryVariants().forEach(v=>{
     const opt = document.createElement('option');
     opt.value = v.id; opt.textContent = v.label;
     sel.appendChild(opt);
   });
 }
 
-function clearAutoSuggest(){
-  document.querySelectorAll('.attribute-item label').forEach(l=>l.classList.remove('auto-suggest'));
-}
-
-/* Build variant details UI (press drive types, lifting accessories, robot mode, etc.) */
+/* Render generic option groups from JSON: variant.options.*.choices */
 function renderVariantDetails(variant){
   const box = document.getElementById('variant-details');
   box.innerHTML = '';
   box.style.display='none';
-  if(!variant || !variant.details){ return; }
+  if(!variant) return;
+  const groups = variant.options || {};
+  const groupKeys = Object.keys(groups);
+  if(!groupKeys.length) return;
 
-  // Presses: drive types
-  if(variant.id==='press' && variant.details.driveTypes){
-    box.style.display='block';
-    const h = document.createElement('div');
-    h.innerHTML = '<strong>Press drive type (add the corresponding EN ISO 16092 part)</strong>';
-    box.appendChild(h);
+  box.style.display='block';
 
-    variant.details.driveTypes.forEach(d=>{
-      const id = 'press-'+d.id;
-      const row = document.createElement('div');
-      row.className='pill';
-      row.style.display='inline-block';
-      row.innerHTML = `<label><input type="checkbox" id="${id}" data-std="${d.standard}"> ${d.label}</label>`;
-      box.appendChild(row);
+  // Variant base standards (shown as info)
+  if (Array.isArray(variant.base_standards) && variant.base_standards.length){
+    const info = document.createElement('div');
+    info.className = 'muted';
+    info.textContent = 'Variant base standards: ' + variant.base_standards.join(', ');
+    box.appendChild(info);
+  }
+
+  groupKeys.forEach(gkey=>{
+    const g = groups[gkey];
+    const title = document.createElement('div');
+    title.className = 'group-title';
+    title.textContent = g.label || gkey;
+    box.appendChild(title);
+
+    const wrap = document.createElement('div');
+    box.appendChild(wrap);
+
+    (g.choices||[]).forEach(choice=>{
+      const id = `${variant.id}-${gkey}-${choice.id}`;
+      const pill = document.createElement('label');
+      pill.className = 'pill';
+      pill.innerHTML = `<input type="checkbox" id="${id}" data-adds="${(choice.adds||[]).join('::')}"> ${choice.label}`;
+      wrap.appendChild(pill);
     });
-  }
-
-  // Lifting: accessory types
-  if(variant.id==='lifting' && variant.details.accessories){
-    box.style.display='block';
-    const h = document.createElement('div');
-    h.innerHTML = '<strong>Lifting accessory type (adds accessory standards)</strong>';
-    box.appendChild(h);
-
-    variant.details.accessories.forEach(a=>{
-      const id = 'lift-'+a.id;
-      const row = document.createElement('div');
-      row.className='pill';
-      row.style.display='inline-block';
-      row.innerHTML = `<label><input type="checkbox" id="${id}" data-std="${a.standard}"> ${a.label}</label>`;
-      box.appendChild(row);
-    });
-  }
-
-  // Robots: collaborative mode
-  if(variant.id==='robot' && variant.details.collaborative){
-    box.style.display='block';
-    const r = document.createElement('div');
-    r.innerHTML = `<label class="pill"><input type="checkbox" id="robot-cobot" data-attr="robot-collaborative"> Collaborative operation (ISO/TS 15066)</label>`;
-    box.appendChild(r);
-  }
-}
-
-/* Apply auto-suggested attributes for a variant */
-function applyVariantAttributeHints(variant){
-  clearAutoSuggest();
-  if(!variant || !variant.suggestAttributes) return;
-  variant.suggestAttributes.forEach(attrId=>{
-    const cb = document.getElementById(attrId);
-    if(cb){ cb.checked = cb.checked || variant.autoCheck===true; // keep user choice, default to checked if flagged
-      const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
-      if(lbl) lbl.classList.add('auto-suggest');
-    }
   });
 }
 
-/* ---------------- Rules engine pieces (your existing logic, kept) ---------------- */
-const MARKET_GROUP = { germany:'eu', france:'eu', italy:'eu', uk:'uk', usa:'us' };
-const ukMarkingPolicy = { general:{ceRecognition:'indefinite'}, medical:{ceRecognitionUntilMost:'2028-06-30', ceRecognitionUntilSome:'2030-06-30'} };
+/* ------------ Rules engine: frameworks ------------- */
+const ukMarkingPolicy = { general:{ceRecognition:'indefinite'} };
 
 function baseFrameworks(product, attrs, destinations){
   const needWireless = attrs.includes('wireless-connectivity') || attrs.includes('wireless-hmi');
   const res = [];
   const add = (t,m=[])=>res.push({text:t,specificMarkets:m});
+
   if(destinations.some(d=>MARKET_GROUP[d]==='eu')){
     const EU=['eu'];
     const addLVD_EMC=()=>{ add('EU LVD (2014/35/EU): electrical safety (CE, EU DoC, technical file).',EU); add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).',EU); };
@@ -499,7 +467,7 @@ function baseFrameworks(product, attrs, destinations){
       case 'explosive-atmospheres-equipment':
         add('EU ATEX Product Directive (2014/34/EU): CE; NB involvement by category/zone.',EU); break;
       case 'medical-electrical-equipment':
-        add('EU MDR (2017/745): CE; EN 60601-1 safety; EN 60601-1-2 EMC; EN 62366 usability; EN ISO 14971 risk. NB involvement per class. LVD not applied.',EU); break;
+        add('EU MDR (2017/745): CE; EN 60601-1 safety; EN 60601-1-2 EMC; EN 62366 usability; EN ISO 14971 risk. LVD not applied.',EU); break;
       case 'low-voltage-cables':
         add('EU CPR (305/2011) for reaction-to-fire (EN 50575): CE with Declaration of Performance (DoP).',EU); break;
       case 'photovoltaic-systems':
@@ -534,49 +502,35 @@ function baseFrameworks(product, attrs, destinations){
   return res;
 }
 
-/* Variant-specific standards injected into requirements */
+/* ------------ Variant-driven standards ------------- */
 function variantStandards(product){
   if(product!=='machinery') return [];
-  const out=[]; const add=(t)=>out.push({text:t,specificMarkets:['eu']}); // EU focus; UI still shows all
+  const out=[]; const add=(t)=>out.push({text:t,specificMarkets:['eu']}); // EN focus
   const vId = document.getElementById('mach-variant').value;
   if(vId==='none') return out;
 
-  // Base: EN ISO 12100 & EN 60204-1 already added in frameworks text
-  // Inject type-C where applicable per catalog
   const variant = getCatalogVariant(vId);
   if(!variant) return out;
 
-  (variant.baseStandards||[]).forEach(s => add(s));
+  // base standards from the variant
+  (variant.base_standards||[]).forEach(s => add(s));
 
-  // presses: drive type parts
-  if(vId==='press'){
-    add('EN ISO 16092-1 (General safety requirements for presses).');
-    ['mechanical','hydraulic','pneumatic'].forEach(k=>{
-      const cb = document.getElementById('press-'+k);
-      if(cb && cb.checked) add(cb.getAttribute('data-std'));
+  // add standards selected in option groups
+  const groups = variant.options || {};
+  Object.keys(groups).forEach(gkey=>{
+    (groups[gkey].choices||[]).forEach(choice=>{
+      const cid = `${variant.id}-${gkey}-${choice.id}`;
+      const cb = document.getElementById(cid);
+      if(cb && cb.checked){
+        (choice.adds||[]).forEach(std => add(std));
+      }
     });
-  }
-  // lifting: EN 13155 + accessories (EN 818 / EN 13414 etc.)
-  if(vId==='lifting'){
-    add('EN 13155 (Lifting accessories): confirm hoist/winch references as applicable.');
-    (variant.details?.accessories||[]).forEach(a=>{
-      const cb = document.getElementById('lift-'+a.id);
-      if(cb && cb.checked) add(a.standard);
-    });
-  }
-  // robots
-  if(vId==='robot'){
-    add('EN ISO 10218-1/-2 (Industrial robots).');
-    const cobot = document.getElementById('robot-cobot');
-    if(cobot && cobot.checked) add('ISO/TS 15066 (Collaborative operation).');
-  }
-  // packaging / woodworking
-  if(vId==='packaging'){ add('EN 415 series (Packaging machinery).'); }
-  if(vId==='woodworking'){ add('Use relevant woodworking type-C (e.g., EN 1870-x, EN 859, etc.) – SME to confirm.'); }
+  });
 
   return out;
 }
 
+/* ------------ Economic operator & certifications (kept) ------------- */
 function econOperatorDuties(origin, destinations, product, attrs){
   const res=[]; const add=(t,m=[])=>res.push({text:t,specificMarkets:m});
   const legalManu = document.getElementById('legal-manufacturer-country').value || 'none';
@@ -618,8 +572,8 @@ function certificationRequirements(certs, product, attrs, destinations){
   return res;
 }
 
-/* ------------ Wiring: product change / variant change ------------- */
-document.getElementById('product').addEventListener('change', async ()=>{
+/* ------------ Wiring: product & variant changes ------------- */
+document.getElementById('product').addEventListener('change', ()=>{
   const product = document.getElementById('product').value;
   updateAttributesVisibility();
   if(product==='machinery'){
@@ -632,12 +586,7 @@ document.getElementById('product').addEventListener('change', async ()=>{
 document.getElementById('mach-variant').addEventListener('change', ()=>{
   const v = getCatalogVariant(document.getElementById('mach-variant').value);
   renderVariantDetails(v);
-  applyVariantAttributeHints(v);
 });
-function getCatalogVariant(id){
-  if(!CATALOG || !CATALOG.products || !CATALOG.products.machinery) return null;
-  return (CATALOG.products.machinery.variants||[]).find(v=>v.id===id) || null;
-}
 
 /* ------------ Generate ------------- */
 function generateRoadmap(){
@@ -652,7 +601,6 @@ function generateRoadmap(){
   if(originSel.value==='none') return alert('Please select the place of manufacture (origin).');
   if(destinations.length===0) return alert('Please select at least one destination market.');
 
-  // operator required validations
   const r = computeOperatorRequirements();
   if(r.needsEUImporter && document.getElementById('eu-importer-country').value==='none') return alert('Please select an EU importer country.');
   if(r.needsEUAR && document.getElementById('eu-ar-country').value==='none') return alert('Please select an EU Authorized Representative country.');
@@ -663,18 +611,22 @@ function generateRoadmap(){
   requirements.push({text:`${productSel.options[productSel.selectedIndex].text} – base EN reference captured from the selector.`,specificMarkets:[]});
   requirements = requirements.concat(baseFrameworks(product, attrs, destinations));
   requirements = requirements.concat(variantStandards(product));
+
   if(destinations.includes('italy') && ['power-installations','lightning-protection','photovoltaic-systems'].includes(product)){
     requirements.push({text:'Italy (installation): D.M. 37/2008 + CEI installation codes (e.g., CEI 64-8; CEI 0-21/0-16; CEI 11-27).',specificMarkets:['italy']});
   }
+
   requirements = requirements.concat(econOperatorDuties(originSel.value, destinations, product, attrs));
   requirements = requirements.concat(certificationRequirements(certs, product, attrs, destinations));
 
-  // Render
+  // Render filtered by destination
   const list = document.getElementById('roadmap-list'); list.innerHTML='';
   const shown=[];
   requirements.forEach(req=>{
-    if(!req.specificMarkets?.length || req.specificMarkets.includes('eu') && destinations.some(d=>['france','germany','italy'].includes(d)) ||
-       req.specificMarkets.some(m=>destinations.includes(m))){
+    const showAll = !req.specificMarkets?.length;
+    const showEU  = req.specificMarkets?.includes('eu') && destinations.some(d=>['france','germany','italy'].includes(d));
+    const showOne = req.specificMarkets?.some(m=>destinations.includes(m));
+    if(showAll || showEU || showOne){
       shown.push(req);
       const li=document.createElement('li'); li.textContent=req.text; list.appendChild(li);
     }
@@ -719,10 +671,19 @@ function exportToCSV(){
 
 /* ------------ Init ------------ */
 (async function init(){
-  await loadCatalog();
+  try { await loadCatalog(); }
+  catch (e) { console.error(e); alert('Could not load catalog.json — see console for details.'); return; }
+
   updateAttributesVisibility();
   showMachineryBlock(false);
   toggleAdvancedSection();
+
+  // If the page ships with Machinery preselected, populate immediately
+  const productSel = document.getElementById('product');
+  if (productSel?.value === 'machinery') {
+    showMachineryBlock(true);
+    populateMachineryVariants();
+  }
 })();
 </script>
 </body>
