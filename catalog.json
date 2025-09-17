@@ -1,5 +1,6 @@
 {
-  "machinery": {
+  "products": {
+    "machinery": {
     "label": "Machinery (EN IEC 60204-1)",
     "base_standards": ["EN ISO 12100", "EN IEC 60204-1"],
     "variants": {
@@ -110,3 +111,4 @@
     }
   }
 }
+
