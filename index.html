@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Compliance Roadmap</title>
   <style>
@@ -35,7 +35,13 @@
     .tooltip:hover .tooltiptext{visibility:visible;opacity:1}
     .req-star::after{content:" *required"; color:#b00020; font-weight:600; margin-left:4px}
     .hint{color:#666;font-size:0.9em;margin:6px 0 12px}
-    .req-badge{ color:#b00020; font-weight:600 }
+    .req-badge{color:#b00020;font-weight:600}
+    /* Variant UI */
+    .variant-panel{display:none;margin-top:12px;padding:12px;border:1px dashed #cfe8e8;border-radius:8px;background:#f8fcfc}
+    .variant-details{display:none;gap:20px;flex-wrap:wrap;margin-top:6px}
+    .variant-note{font-size:0.9em;color:#444;margin:8px 0 0}
+    /* Attribute suggestion highlight */
+    .suggested-attr{background:#FFF8E1;border-radius:4px;padding:4px}
   </style>
 </head>
 <body>
@@ -72,23 +78,35 @@
             <option value="air-cleaning-appliances">Air-cleaning appliances (EN 60335-2-65)</option>
           </select>
         </div>
+      </div>
 
-        <!-- Variant selector (from catalog.json) -->
-        <div class="flex-item" id="variant-wrap" style="display:none">
-          <label for="variant">Variant (optional)</label>
-          <select id="variant"></select>
+      <!-- Machinery Variant Panel (only visible when Machinery selected) -->
+      <div id="machinery-variant-panel" class="variant-panel">
+        <div class="flex-container">
+          <div class="flex-item">
+            <label for="variant-select">Machinery Variant</label>
+            <select id="variant-select">
+              <option value="none">Select a Machinery variant</option>
+              <!-- options populated from catalog.json -->
+            </select>
+          </div>
         </div>
+
+        <div id="variant-details-wrapper" class="variant-details">
+          <!-- detail selects rendered here from catalog.json based on chosen variant -->
+        </div>
+
+        <p class="variant-note">
+          Tip: Selecting variant/details may auto-check or suggest attributes below (highlighted). You can still adjust them manually.
+        </p>
       </div>
     </div>
 
     <!-- Attributes -->
     <div class="section">
       <h2>Select Attributes</h2>
-      <input type="text" id="attributes-search" class="attributes-search" placeholder="Search attributes..." onkeyup="filterAttributes()">
+      <input type="text" id="attributes-search" class="attributes-search" placeholder="Search attributes...">
       <div class="attributes-list" id="attributes-list">
-        <!-- (attributes list unchanged from your latest; omitted here for brevity in this comment) -->
-        <!-- Keep your entire attributes block exactly as in your last message -->
-        <!-- BEGIN your attributes (unchanged) -->
         <div class="attribute-item" data-products="traction-batteries,stationary-batteries,photovoltaic-systems,medical-electrical-equipment">
           <input type="checkbox" id="contains-battery" value="contains-battery">
           <label for="contains-battery" class="tooltip">Contains Battery (Lithium or Other)
@@ -197,7 +215,6 @@
             <span class="tooltiptext">Expect tighter safety evidence under the relevant product standard (e.g., EN 60204-1, EN 60598-1, EN 60601-1, etc.).</span>
           </label>
         </div>
-        <!-- END your attributes -->
       </div>
     </div>
 
@@ -232,11 +249,12 @@
         <div class="certification-item">
           <input type="checkbox" id="ce-notified-body" value="ce-notified-body">
           <label for="ce-notified-body" class="tooltip">Notified Body / UK Approved Body
-            <span class="tooltiptext">Third-party involvement where the route requires it (e.g., MDR, ATEX, certain modules). NB/UKAB ID with marking when applicable.</span>
+            <span class="tooltiptext">Third-party involvement where the conformity route requires it (e.g., MDR, ATEX, certain modules). NB/UKAB ID with marking when applicable.</span>
           </label>
         </div>
       </div>
 
+      <!-- GB marking plan, appears only when UK selected -->
       <div id="gb-marking-plan" style="display:none; margin-top:8px;">
         <label for="gb-plan">GB marking plan</label>
         <select id="gb-plan">
@@ -254,11 +272,11 @@
         <div class="flex-item">
           <select id="country-of-origin">
             <option value="none">Select origin country</option>
-            <option value="italy">Italy</option>
-            <option value="usa">United States</option>
-            <option value="germany">Germany</option>
             <option value="france">France</option>
+            <option value="germany">Germany</option>
+            <option value="italy">Italy</option>
             <option value="uk">United Kingdom</option>
+            <option value="usa">United States</option>
           </select>
         </div>
       </div>
@@ -267,13 +285,13 @@
     <!-- Destination -->
     <div class="section">
       <h2>Destination market(s)</h2>
-      <input type="text" id="destinations-search" class="destinations-search" placeholder="Search destinations..." onkeyup="filterDestinations()">
+      <input type="text" id="destinations-search" class="destinations-search" placeholder="Search destinations...">
       <div class="destinations-list" id="destinations-list">
-        <div class="market-item"><input type="checkbox" id="destination-usa" value="usa"><label for="destination-usa">United States of America (USA)</label></div>
-        <div class="market-item"><input type="checkbox" id="destination-germany" value="germany"><label for="destination-germany">Germany (EU)</label></div>
         <div class="market-item"><input type="checkbox" id="destination-france" value="france"><label for="destination-france">France (EU)</label></div>
-        <div class="market-item"><input type="checkbox" id="destination-uk" value="uk"><label for="destination-uk">United Kingdom (UK)</label></div>
+        <div class="market-item"><input type="checkbox" id="destination-germany" value="germany"><label for="destination-germany">Germany (EU)</label></div>
         <div class="market-item"><input type="checkbox" id="destination-italy" value="italy"><label for="destination-italy">Italy (EU)</label></div>
+        <div class="market-item"><input type="checkbox" id="destination-uk" value="uk"><label for="destination-uk">United Kingdom (UK)</label></div>
+        <div class="market-item"><input type="checkbox" id="destination-usa" value="usa"><label for="destination-usa">United States of America (USA)</label></div>
       </div>
     </div>
 
@@ -290,9 +308,9 @@
           <label for="legal-manufacturer-country">Legal manufacturer country (optional)</label>
           <select id="legal-manufacturer-country">
             <option value="none">Same as place of manufacture</option>
-            <option value="italy">Italy</option>
-            <option value="germany">Germany</option>
             <option value="france">France</option>
+            <option value="germany">Germany</option>
+            <option value="italy">Italy</option>
             <option value="uk">United Kingdom</option>
             <option value="usa">United States</option>
           </select>
@@ -306,18 +324,18 @@
             <label id="lbl-eu-importer" for="eu-importer-country">EU importer country</label>
             <select id="eu-importer-country">
               <option value="none">Select country</option>
-              <option value="italy">Italy</option>
-              <option value="germany">Germany</option>
               <option value="france">France</option>
+              <option value="germany">Germany</option>
+              <option value="italy">Italy</option>
             </select>
           </div>
           <div class="flex-item">
             <label id="lbl-eu-ar" for="eu-ar-country">EU Authorized Representative country (if applicable)</label>
             <select id="eu-ar-country">
               <option value="none">Not applicable / not yet decided</option>
-              <option value="italy">Italy</option>
-              <option value="germany">Germany</option>
               <option value="france">France</option>
+              <option value="germany">Germany</option>
+              <option value="italy">Italy</option>
             </select>
           </div>
         </div>
@@ -346,7 +364,7 @@
 
     <!-- Actions -->
     <div class="section">
-      <button onclick="generateRoadmap()">Generate Compliance Roadmap</button>
+      <button id="btn-generate">Generate Compliance Roadmap</button>
     </div>
 
     <!-- Output -->
@@ -356,34 +374,33 @@
         <h3>Applicable Standards and Requirements</h3>
         <ul id="roadmap-list"></ul>
         <div class="button-group">
-          <button class="export-btn" onclick="exportToCitation()">Create My Review</button>
-          <button class="export-csv-btn" onclick="exportToCSV()">Export My Requirements</button>
+          <button class="export-btn" id="btn-export-citation">Create My Review</button>
+          <button class="export-csv-btn" id="btn-export-csv">Export My Requirements</button>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-/* ===== Catalog loader (catalog.json) ===== */
+/* ===== Globals & Catalog ===== */
 let CATALOG = null;
 
 async function loadCatalog(){
   try{
-    const res = await fetch('catalog.json', {cache: 'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
+    const res = await fetch('catalog.json', {cache:'no-store'});
+    if (!res.ok) throw new Error('catalog.json not found');
     CATALOG = await res.json();
+    // populate machinery variants
+    populateVariantFromCatalog('machinery');
   }catch(e){
-    console.warn('catalog.json not loaded:', e);
-    CATALOG = { products: {} };
+    console.warn('Catalog load failed:', e.message);
   }
 }
 
-/* ===== Helpers ===== */
-
+/* ===== UI helpers ===== */
 const EU_SET = new Set(['italy','germany','france']);
 const MARKET_GROUP = { germany:'eu', france:'eu', italy:'eu', uk:'uk', usa:'us' };
 
-// Attribute search
 function filterAttributes() {
   const q = document.getElementById('attributes-search').value.toLowerCase();
   document.querySelectorAll('.attribute-item').forEach(item => {
@@ -391,8 +408,6 @@ function filterAttributes() {
     item.style.display = label.includes(q) ? 'flex' : 'none';
   });
 }
-
-// Destination search
 function filterDestinations() {
   const q = document.getElementById('destinations-search').value.toLowerCase();
   document.querySelectorAll('.market-item').forEach(item => {
@@ -400,22 +415,8 @@ function filterDestinations() {
     item.style.display = label.includes(q) ? 'flex' : 'none';
   });
 }
-
-// Variant population from catalog
-function populateVariantFromCatalog(product){
-  const wrap = document.getElementById('variant-wrap');
-  const sel  = document.getElementById('variant');
-  sel.innerHTML = "";
-  const list = CATALOG?.products?.[product]?.variants || [];
-  if (!list.length){ wrap.style.display = 'none'; return; }
-  sel.appendChild(new Option("Select a variant (optional)", ""));
-  list.forEach(v => sel.appendChild(new Option(v.label, v.id)));
-  wrap.style.display = 'block';
-}
-
-function anyEUSelected(){ const d = getSelectedDestinations(); return d.some(x => EU_SET.has(x)); }
+function anyEUSelected(){ return getSelectedDestinations().some(x => EU_SET.has(x)); }
 function anyUKSelected(){ return getSelectedDestinations().includes('uk'); }
-
 function toggleAdvancedSection(){
   const adv = document.getElementById('advanced-section');
   const euOps = document.getElementById('eu-ops');
@@ -428,24 +429,20 @@ function toggleAdvancedSection(){
   gbPlan.style.display = anyUKSelected() ? 'block' : 'none';
   markRequiredFields();
 }
-
-document.querySelectorAll('.market-item input[type="checkbox"]').forEach(cb => {
-  cb.addEventListener('change', toggleAdvancedSection);
+document.addEventListener('change', (e)=>{
+  if (e.target.closest('.market-item')) toggleAdvancedSection();
 });
-
-// Tooltip positioning
 function positionTooltip(element){
   const tip = element.querySelector('.tooltiptext'); if(!tip) return;
   const rect = element.getBoundingClientRect();
   tip.style.left = (rect.left + rect.width/2)+'px';
   tip.style.top  = (rect.top - tip.offsetHeight - 10)+'px';
 }
-document.querySelectorAll('.tooltip').forEach(t => {
-  t.addEventListener('mouseenter', () => positionTooltip(t));
-  t.addEventListener('mousemove',  () => positionTooltip(t));
+document.addEventListener('mouseover', (e)=>{
+  const t = e.target.closest('.tooltip');
+  if (t) positionTooltip(t);
 });
 
-// Attributes by product
 function updateAttributes(){
   const product = document.getElementById('product').value;
   document.querySelectorAll('.attribute-item').forEach(item => {
@@ -460,7 +457,7 @@ function updateAttributes(){
   document.getElementById('attributes-search').value = '';
 }
 
-// Get selections
+/* ===== Get selections ===== */
 function getSelectedAttributes(){
   return Array.from(document.querySelectorAll('.attribute-item input[type="checkbox"]:checked')).map(el => el.value);
 }
@@ -471,7 +468,7 @@ function getSelectedDestinations(){
   return Array.from(document.querySelectorAll('.market-item input[type="checkbox"]:checked')).map(el => el.value);
 }
 
-// Destination-aware rendering
+/* ===== Dest-aware display filter ===== */
 function showRequirement(req, destinations){
   if (!req.specificMarkets || req.specificMarkets.length === 0) return true;
   const EU = new Set(['germany','france','italy']);
@@ -498,7 +495,6 @@ function computeOperatorRequirements() {
     needsUKRP:       goingUK && isMedical && manufacturerCountry !== 'uk'
   };
 }
-
 function labelReq(selectId, isReq){
   const sel = document.getElementById(selectId);
   if (!sel) return;
@@ -506,23 +502,19 @@ function labelReq(selectId, isReq){
   if (!lbl) return;
   lbl.classList.toggle('req-star', isReq);
 }
-
 function markRequiredFields() {
   const r = computeOperatorRequirements();
-
   // EU
   labelReq('eu-importer-country', r.needsEUImporter);
   labelReq('eu-ar-country', r.needsEUAR);
   document.getElementById('eu-importer-country')?.toggleAttribute('aria-required', r.needsEUImporter);
   document.getElementById('eu-ar-country')?.toggleAttribute('aria-required', r.needsEUAR);
-
   // UK
   labelReq('uk-importer-country', r.needsGBImporter);
   labelReq('ukrp-country', r.needsUKRP);
   document.getElementById('uk-importer-country')?.toggleAttribute('aria-required', r.needsGBImporter);
   document.getElementById('ukrp-country')?.toggleAttribute('aria-required', r.needsUKRP);
 }
-
 function requireWhenNeeded() {
   const r = computeOperatorRequirements();
   if (r.needsEUImporter && document.getElementById('eu-importer-country').value === 'none') {
@@ -539,8 +531,10 @@ function requireWhenNeeded() {
   }
   return true;
 }
+document.getElementById('country-of-origin').addEventListener('change', markRequiredFields);
+document.getElementById('legal-manufacturer-country').addEventListener('change', markRequiredFields);
 
-/* ===== Rules engine ===== */
+/* ===== Market frameworks ===== */
 const ukMarkingPolicy = {
   general: { ceRecognition: 'indefinite' },
   medical: { ceRecognitionUntilMost: '2028-06-30', ceRecognitionUntilSome: '2030-06-30' }
@@ -549,17 +543,12 @@ const ukMarkingPolicy = {
 function baseFrameworks(product, attrs, destinations){
   const needWireless = attrs.includes('wireless-connectivity');
   const results = [];
-  const added = new Set();
-  const add = (text, mkts=[]) => {
-    const key = mkts.join('|') + '::' + text;
-    if (added.has(key)) return;
-    added.add(key);
-    results.push({ text, specificMarkets: mkts });
-  };
+  const add = (text, mkts=[]) => results.push({ text, specificMarkets: mkts });
 
   // EU block
   if (destinations.some(d => MARKET_GROUP[d] === 'eu')) {
     const EU = ['eu'];
+
     const addLVD_EMC = () => {
       add('EU LVD (2014/35/EU): electrical safety (CE, EU DoC, technical file).', EU);
       add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).', EU);
@@ -604,6 +593,7 @@ function baseFrameworks(product, attrs, destinations){
         }
     }
 
+    // Cross-cutting EU
     if (['audio-video-equipment','video-surveillance','luminaires','heat-pumps-airconditioners','commercial-refrigerating','air-cleaning-appliances','electrical-equipment-measurement','low-voltage-switchgear'].includes(product)) {
       add('EU RoHS (2011/65/EU) where in EEE scope.', EU);
       add('EU WEEE (2012/19/EU) producer obligations where in scope.', EU);
@@ -646,62 +636,169 @@ function baseFrameworks(product, attrs, destinations){
     }
   }
 
-  // ===== Variant-driven notes from catalog.json =====
-  const variantId = document.getElementById('variant')?.value || "";
-  const variant = CATALOG?.products?.[product]?.variants?.find(v => v.id === variantId);
-  if (variant){
-    const goingEU = destinations.some(d => MARKET_GROUP[d] === 'eu');
-    const goingUK = destinations.includes('uk');
-    const goingUS = destinations.includes('usa');
-    if (goingEU && Array.isArray(variant.eu)) variant.eu.forEach(t => add(t, ['eu']));
-    if (goingUK && Array.isArray(variant.uk)) variant.uk.forEach(t => add(t, ['uk']));
-    if (goingUS && Array.isArray(variant.us)) variant.us.forEach(t => add(t, ['usa']));
-  }
-
-  // Cross-cuts (if defined on product in catalog)
-  const productCat = CATALOG?.products?.[product];
-  if (productCat?.crossCuts && destinations.some(d => MARKET_GROUP[d] === 'eu')) {
-    productCat.crossCuts.forEach(t => add(t, ['eu']));
-  }
-
   return results;
 }
 
-function econOperatorDuties(origin, destinations, product, attrs){
-  const results = [];
-  const add = (text, mkts=[]) => results.push({ text, specificMarkets: mkts });
+/* ===== Variant injection to requirements ===== */
+function getSelectedVariantId(){
+  const sel = document.getElementById('variant-select');
+  return sel ? sel.value : 'none';
+}
+function getSelectedVariantDetailMap(){
+  const map = {};
+  const wrap = document.getElementById('variant-details-wrapper');
+  if (!wrap) return map;
+  wrap.querySelectorAll('select').forEach(sel=>{
+    const key = sel.getAttribute('data-detail-id');
+    if (!key) return;
+    if (sel.multiple) {
+      map[key] = Array.from(sel.selectedOptions).map(o=>o.value).filter(v=>v && v!=='none');
+    } else {
+      map[key] = sel.value && sel.value!=='none' ? [sel.value] : [];
+    }
+  });
+  return map;
+}
+function pushVariantNotes(requirements, product, destinations){
+  if (product !== 'machinery' || !CATALOG) return;
+  const variantId = getSelectedVariantId();
+  if (!variantId || variantId === 'none') return;
+  const v = CATALOG?.products?.machinery?.variants?.find(x=>x.id===variantId);
+  if (!v) return;
 
-  const legalManu = (document.getElementById('legal-manufacturer-country')?.value || 'none');
-  const manufacturerCountry = (legalManu !== 'none') ? legalManu : origin;
+  const add = (text, mkts=[]) => requirements.push({ text, specificMarkets: mkts });
 
-  const goingEU = destinations.some(d => EU_SET.has(d));
-  const goingUK = destinations.includes('uk');
-  const goingUS = destinations.includes('usa');
+  // Base variant notes by market
+  if (destinations.some(d=>MARKET_GROUP[d]==='eu')) (v.eu||[]).forEach(line=>add(line, ['eu']));
+  if (destinations.includes('uk')) (v.uk||[]).forEach(line=>add(line, ['uk']));
+  if (destinations.includes('usa')) (v.us||[]).forEach(line=>add(line, ['usa']));
 
-  if (goingEU && !EU_SET.has(manufacturerCountry)) {
-    add(`EU importer required: name & EU address on product/packaging; ensure CE compliance; hold EU DoC & technical file. ${renderChoice('eu-importer-country','Planned importer')}`, ['eu']);
-    const isMedical = (product === 'medical-electrical-equipment') || attrs.includes('medical-application');
-    if (isMedical) add(`EU Authorized Representative required for MDR medical devices. ${renderChoice('eu-ar-country','Planned AR')}`, ['eu']);
-  }
-  if (goingUK && manufacturerCountry !== 'uk') {
-    add(`GB importer required: name & GB address; keep UK DoC available; apply chosen GB marking plan. ${renderChoice('uk-importer-country','Planned importer')}`, ['uk']);
-    const isMedical = (product === 'medical-electrical-equipment') || attrs.includes('medical-application');
-    if (isMedical) add(`UK Responsible Person (UKRP) required for medical devices. ${renderChoice('ukrp-country','Planned UKRP')}`, ['uk']);
-  }
-  if (goingUS) {
-    add('US: coordinate Importer of Record (customs) and ensure FCC/NRTL obligations are met prior to import.', ['usa']);
-  }
-  return results;
+  // Details "adds"
+  const detailMap = getSelectedVariantDetailMap();
+  (v.details||[]).forEach(d=>{
+    (detailMap[d.id]||[]).forEach(optId=>{
+      const opt = (d.options||[]).find(o=>o.id===optId);
+      if (!opt) return;
+      if (destinations.some(m=>MARKET_GROUP[m]==='eu')) (opt.adds?.eu||[]).forEach(line=>add(line,['eu']));
+      if (destinations.includes('uk')) (opt.adds?.uk||[]).forEach(line=>add(line,['uk']));
+      if (destinations.includes('usa')) (opt.adds?.us||[]).forEach(line=>add(line,['usa']));
+    });
+  });
+
+  // Cross-cuts
+  (CATALOG?.products?.machinery?.crossCuts||[]).forEach(line=>add(line, ['eu']));
 }
 
-function renderChoice(selectId, label){
-  const el = document.getElementById(selectId);
-  if (!el) return '';
-  const v = el.value;
-  if (!v || v==='none') return '';
-  return `${label}: ${v.toUpperCase()}.`;
+/* ===== Variant-driven attribute hints ===== */
+function clearAttrSuggestions(){
+  document.querySelectorAll('.attribute-item').forEach(d => d.classList.remove('suggested-attr'));
+}
+function applyVariantAttributeHints(){
+  clearAttrSuggestions();
+
+  const product = document.getElementById('product').value;
+  if (product !== 'machinery' || !CATALOG) return;
+
+  const variantId = getSelectedVariantId();
+  const variant = CATALOG?.products?.machinery?.variants?.find(v => v.id === variantId);
+  if (!variant) return;
+
+  const toCheck = new Set(variant.attributes?.check || []);
+  const toSuggest = new Set(variant.attributes?.suggest || []);
+
+  const detailMap = getSelectedVariantDetailMap();
+  (variant.details || []).forEach(d => {
+    (detailMap[d.id] || []).forEach(optId => {
+      const opt = (d.options || []).find(o => o.id === optId);
+      if (!opt) return;
+      (opt.attributes?.check || []).forEach(a => toCheck.add(a));
+      (opt.attributes?.suggest || []).forEach(a => toSuggest.add(a));
+    });
+  });
+
+  // Auto-tick
+  toCheck.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.type === 'checkbox' && !el.disabled) el.checked = true;
+  });
+
+  // Visual suggestions
+  toSuggest.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const box = el.closest('.attribute-item');
+    if (box) box.classList.add('suggested-attr');
+  });
 }
 
+/* ===== Populate Machinery variant UI from catalog ===== */
+function populateVariantFromCatalog(product){
+  const panel = document.getElementById('machinery-variant-panel');
+  const select = document.getElementById('variant-select');
+  const detailsWrap = document.getElementById('variant-details-wrapper');
+
+  if (product === 'machinery') {
+    panel.style.display = 'block';
+    // Fill variants
+    if (CATALOG?.products?.machinery?.variants) {
+      // preserve first "none"
+      select.innerHTML = '<option value="none">Select a Machinery variant</option>' +
+        CATALOG.products.machinery.variants.map(v=>`<option value="${v.id}">${v.label}</option>`).join('');
+    } else {
+      select.innerHTML = '<option value="none">Select a Machinery variant</option>';
+    }
+
+    // clear details
+    detailsWrap.innerHTML = '';
+    detailsWrap.style.display = 'none';
+
+    // attach on change
+    select.onchange = populateVariantDetails;
+  } else {
+    panel.style.display = 'none';
+  }
+}
+function populateVariantDetails(){
+  const select = document.getElementById('variant-select');
+  const variantId = select.value;
+  const detailsWrap = document.getElementById('variant-details-wrapper');
+  detailsWrap.innerHTML = '';
+  detailsWrap.style.display = 'none';
+  if (!CATALOG || !CATALOG.products?.machinery) return;
+
+  const variant = CATALOG.products.machinery.variants.find(v=>v.id===variantId);
+  if (!variant || !variant.details || !variant.details.length) {
+    applyVariantAttributeHints();
+    return;
+  }
+
+  variant.details.forEach(d=>{
+    const cap = document.createElement('div');
+    cap.className = 'flex-item';
+    const label = document.createElement('label');
+    label.textContent = d.label;
+    const sel = document.createElement('select');
+    sel.setAttribute('data-detail-id', d.id);
+    if (d.type === 'multi') sel.multiple = true;
+
+    if (!sel.multiple) sel.innerHTML = '<option value="none">Select</option>';
+    (d.options||[]).forEach(o=>{
+      const opt = document.createElement('option');
+      opt.value = o.id; opt.textContent = o.label;
+      sel.appendChild(opt);
+    });
+
+    cap.appendChild(label); cap.appendChild(sel);
+    detailsWrap.appendChild(cap);
+
+    sel.addEventListener('change', applyVariantAttributeHints);
+  });
+
+  detailsWrap.style.display = 'flex';
+  applyVariantAttributeHints();
+}
+
+/* ===== Certification-specific requirements ===== */
 function certificationRequirements(certifications, product, attrs, destinations){
   const results = [];
   const add = (text, mkts=[]) => results.push({ text, specificMarkets: mkts });
@@ -739,12 +836,42 @@ function certificationRequirements(certifications, product, attrs, destinations)
   return results;
 }
 
-/* ===== Generate ===== */
+/* ===== Economic operator duties ===== */
+function econOperatorDuties(origin, destinations, product, attrs){
+  const results = [];
+  const add = (text, mkts=[]) => results.push({ text, specificMarkets: mkts });
 
-function getSelectedVariantId(){
-  return document.getElementById('variant')?.value || "";
+  const legalManu = (document.getElementById('legal-manufacturer-country')?.value || 'none');
+  const manufacturerCountry = (legalManu !== 'none') ? legalManu : origin;
+
+  const goingEU = destinations.some(d => EU_SET.has(d));
+  const goingUK = destinations.includes('uk');
+  const goingUS = destinations.includes('usa');
+
+  if (goingEU && !EU_SET.has(manufacturerCountry)) {
+    add(`EU importer required: name & EU address on product/packaging; ensure CE compliance; hold EU DoC & technical file. ${renderChoice('eu-importer-country','Planned importer')}`, ['eu']);
+    const isMedical = (product === 'medical-electrical-equipment') || attrs.includes('medical-application');
+    if (isMedical) add(`EU Authorized Representative required for MDR medical devices. ${renderChoice('eu-ar-country','Planned AR')}`, ['eu']);
+  }
+  if (goingUK && manufacturerCountry !== 'uk') {
+    add(`GB importer required: name & GB address; keep UK DoC available; apply chosen GB marking plan. ${renderChoice('uk-importer-country','Planned importer')}`, ['uk']);
+    const isMedical = (product === 'medical-electrical-equipment') || attrs.includes('medical-application');
+    if (isMedical) add(`UK Responsible Person (UKRP) required for medical devices. ${renderChoice('ukrp-country','Planned UKRP')}`, ['uk']);
+  }
+  if (goingUS) {
+    add('US: coordinate Importer of Record (customs) and ensure FCC/NRTL obligations are met prior to import.', ['usa']);
+  }
+  return results;
+}
+function renderChoice(selectId, label){
+  const el = document.getElementById(selectId);
+  if (!el) return '';
+  const v = el.value;
+  if (!v || v==='none') return '';
+  return `${label}: ${v.toUpperCase()}.`;
 }
 
+/* ===== Generate Roadmap ===== */
 function generateRoadmap(){
   const productSel = document.getElementById('product');
   const countryOfOrigin = document.getElementById('country-of-origin');
@@ -754,14 +881,12 @@ function generateRoadmap(){
   const destinations = getSelectedDestinations();
   const attributes = getSelectedAttributes();
   const certifications = getSelectedCertifications();
-  const variantId = getSelectedVariantId();
 
   if (product === 'none') return alert('Please select a product or system.');
   if (countryOfOrigin.value === 'none') return alert('Please select the place of manufacture (origin).');
   if (destinations.length === 0) return alert('Please select at least one destination market.');
   if (!requireWhenNeeded()) return;
 
-  // Build requirements
   let requirements = [];
 
   // Base EN echo
@@ -770,10 +895,13 @@ function generateRoadmap(){
     specificMarkets: []
   });
 
-  // Product + market frameworks
+  // Variant notes (Machinery)
+  pushVariantNotes(requirements, product, destinations);
+
+  // Base frameworks
   requirements = requirements.concat(baseFrameworks(product, attributes, destinations));
 
-  // Italy-specific installation notes
+  // Italy installation/system notes (only for installation/system categories)
   const IT_INSTALL_ONLY = ['power-installations','lightning-protection','photovoltaic-systems'];
   if (destinations.includes('italy') && IT_INSTALL_ONLY.includes(product)) {
     requirements.push({
@@ -785,7 +913,7 @@ function generateRoadmap(){
   // Economic operator duties
   requirements = requirements.concat(econOperatorDuties(countryOfOrigin.value, destinations, product, attributes));
 
-  // Certification selections
+  // Certifications
   requirements = requirements.concat(certificationRequirements(certifications, product, attributes, destinations));
 
   // Render (destination-aware)
@@ -799,33 +927,39 @@ function generateRoadmap(){
     roadmapList.appendChild(li);
   });
 
-  // Stash details for export
+  // Stash details
   window.currentRoadmapDetails = {
     product: productSel.options[productSel.selectedIndex].text,
-    variant: variantId,
     attributes: attributes,
     certifications: certifications,
     countryOfOrigin: countryOfOrigin.options[countryOfOrigin.selectedIndex].text,
     destinations: destinations,
     requirementsAll: requirements,
-    requirementsShown: filtered
+    requirementsShown: filtered,
+    variant: (product==='machinery') ? getSelectedVariantId() : null,
+    variantDetails: (product==='machinery') ? getSelectedVariantDetailMap() : null
   };
 
   document.getElementById('roadmap-section').style.display = 'block';
 }
 
+/* ===== Exports ===== */
 function exportToCitation(){
   alert('Exporting to ACS: a Base record plus Detailed requirements with tasks/evidence scaffolding will be created from the roadmap.');
 }
-
 function exportToCSV(){
   const d = window.currentRoadmapDetails;
   if (!d) return alert('No requirements to export. Please generate the roadmap first.');
+
   let csv = '';
   const labels = { 'usa':'United States', 'germany':'Germany', 'france':'France', 'uk':'United Kingdom', 'italy':'Italy' };
 
   csv += 'Product,"' + d.product.replace(/"/g,'""') + '"\n';
-  csv += 'Variant,"' + (d.variant || 'None').replace(/"/g,'""') + '"\n';
+  if (d.variant) csv += 'Variant,"' + d.variant.replace(/"/g,'""') + '"\n';
+  if (d.variantDetails){
+    const flat = Object.entries(d.variantDetails).map(([k,v])=>`${k}: ${v.join('|')}`).join('; ');
+    csv += 'Variant Details,"' + flat.replace(/"/g,'""') + '"\n';
+  }
   csv += 'Attributes,"' + (d.attributes.map(a=>a).join(', ') || 'None').replace(/"/g,'""') + '"\n';
   csv += 'Certifications,"' + (d.certifications.map(c=>c).join(', ') || 'None').replace(/"/g,'""') + '"\n';
   csv += 'Origin,"' + d.countryOfOrigin.replace(/"/g,'""') + '"\n';
@@ -845,20 +979,23 @@ function exportToCSV(){
   URL.revokeObjectURL(url);
 }
 
-/* ===== init ===== */
-document.getElementById('product').addEventListener('change', (e)=>{
+/* ===== Wire up & init ===== */
+document.getElementById('product').addEventListener('change', e=>{
   updateAttributes();
+  // show/hide machinery variant panel
   populateVariantFromCatalog(e.target.value);
+  if (e.target.value !== 'machinery') clearAttrSuggestions();
 });
-document.getElementById('country-of-origin').addEventListener('change', markRequiredFields);
-document.getElementById('legal-manufacturer-country').addEventListener('change', markRequiredFields);
+document.getElementById('attributes-search').addEventListener('keyup', filterAttributes);
+document.getElementById('destinations-search').addEventListener('keyup', filterDestinations);
+document.getElementById('btn-generate').addEventListener('click', generateRoadmap);
+document.getElementById('btn-export-citation').addEventListener('click', exportToCitation);
+document.getElementById('btn-export-csv').addEventListener('click', exportToCSV);
 
-// Load catalog then set up initial UI
-loadCatalog().then(()=>{
-  updateAttributes();
-  toggleAdvancedSection();
-  populateVariantFromCatalog(document.getElementById('product').value);
-});
+// Initial paint
+updateAttributes();
+toggleAdvancedSection();
+loadCatalog();
 </script>
 </body>
 </html>
