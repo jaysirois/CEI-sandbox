@@ -488,26 +488,7 @@ function applyVariantAttributeHints(variant){
     }
   });
 }
-    groupKeys.forEach(gkey=>{
-    const g = groups[gkey];
-    const title = document.createElement('div');
-    title.className = 'group-title';
-    title.textContent = g.label || gkey;
-    box.appendChild(title);
-
-    const wrap = document.createElement('div');
-    box.appendChild(wrap);
-
-    (g.choices||[]).forEach(choice=>{
-      const id = `${variant.id}-${gkey}-${choice.id}`;
-      const pill = document.createElement('label');
-      pill.className = 'pill';
-      pill.innerHTML = `<input type="checkbox" id="${id}" data-adds="${(choice.adds||[]).join('::')}"> ${choice.label}`;
-      wrap.appendChild(pill);
-    });
-  });
-}
-
+ 
 /* ------------ Rules engine: frameworks ------------- */
 const ukMarkingPolicy = { general:{ceRecognition:'indefinite'} };
 
@@ -756,6 +737,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
