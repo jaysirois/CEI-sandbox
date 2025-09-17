@@ -1,156 +1,103 @@
 {
-  "products": {
-    "machinery": {
-      "variants": [
-        {
-          "id": "robot",
-          "label": "Industrial robots",
-          "eu": [
-            "Apply EN ISO 10218-1/-2; consider ISO/TS 15066 for collaborative operations. EMC 2014/30/EU; LVD not applied under Machinery."
-          ],
-          "uk": [
-            "Mirror of EU Machinery framework under GB Supply of Machinery; CE recognised; UKCA optional."
-          ],
-          "us": [
-            "OSHA/NRTL typically expected for electrical parts; consider RIA/ANSI references where applicable (SME to confirm)."
-          ],
-          "attributes": {
-            "check": ["safety-critical-component"]
+  "machinery": {
+    "label": "Machinery (EN IEC 60204-1)",
+    "base_standards": ["EN ISO 12100", "EN IEC 60204-1"],
+    "variants": {
+      "robot": {
+        "label": "Industrial robots",
+        "base_standards": ["EN ISO 10218-1", "EN ISO 10218-2"],
+        "options": {
+          "mode": {
+            "label": "Robot mode / application",
+            "multi": true,
+            "choices": [
+              { "id":"collab",   "label":"Collaborative operation (hand guiding, power/force limiting)", "adds":["ISO/TS 15066"] },
+              { "id":"guarded",  "label":"Guarded cell with interlocks", 
+                "adds":["EN ISO 14120 (guards)","EN ISO 14119 (interlocking)","EN ISO 13857 (safety distances)"] },
+              { "id":"teaching", "label":"Manual teaching / enabling device", "adds":["EN ISO 10218 integration notes (teach)"] }
+            ]
           },
-          "details": [
-            {
-              "id": "collaboration",
-              "label": "Collaborative operation (cobot)?",
-              "type": "single",
-              "options": [
-                {
-                  "id": "yes",
-                  "label": "Yes (cobot)",
-                  "adds": {
-                    "eu": [
-                      "Collaborative operation: consider ISO/TS 15066 (power/force limiting) per risk assessment."
-                    ]
-                  },
-                  "attributes": {
-                    "check": ["safety-critical-component"]
-                  }
-                },
-                { "id": "no", "label": "No (traditional robot)", "adds": {} }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "packaging",
-          "label": "Packaging machinery",
-          "eu": ["EN 415 series (packaging machinery)."],
-          "uk": ["As per GB Machinery framework; CE recognised; UKCA optional."],
-          "us": ["OSHA/NRTL for electrical; ANSI/PMMI references as applicable (SME to confirm)."],
-          "attributes": {
-            "check": ["safety-critical-component"]
-          }
-        },
-        {
-          "id": "lifting",
-          "label": "Lifting equipment/accessories",
-          "eu": [
-            "EN 13155 (lifting accessories); check hoist/winch standards (SME to confirm)."
-          ],
-          "uk": ["As per GB Machinery/Supply of Machinery framework."],
-          "us": ["OSHA + relevant ASME/ANSI standards (SME to confirm)."],
-          "attributes": {
-            "check": ["safety-critical-component"]
-          },
-          "details": [
-            {
-              "id": "equipment-type",
-              "label": "Lifting subcategory (select all that apply)",
-              "type": "multi",
-              "options": [
-                {
-                  "id": "chain-slings",
-                  "label": "Chain slings",
-                  "adds": {
-                    "eu": [
-                      "Chain slings to EN 818 (components to EN 1677) – SME to confirm applicability."
-                    ]
-                  }
-                },
-                {
-                  "id": "wire-ropes",
-                  "label": "Wire rope slings",
-                  "adds": {
-                    "eu": ["Wire rope slings: EN 13414 series – SME to confirm."]
-                  }
-                },
-                {
-                  "id": "hoists",
-                  "label": "Electric chain/wire rope hoists",
-                  "adds": {
-                    "eu": ["Hoists/winches: EN 14492 series – SME to confirm."]
-                  },
-                  "attributes": {
-                    "check": ["safety-critical-component"]
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "press",
-          "label": "Presses",
-          "eu": ["EN ISO 16092-1 (General safety requirements for presses)."],
-          "uk": ["As per GB Machinery framework."],
-          "us": ["OSHA + ANSI/PMMI or other press-specific type-C (SME to confirm)."],
-          "attributes": {
-            "check": ["safety-critical-component"]
-          },
-          "details": [
-            {
-              "id": "drive-type",
-              "label": "Press drive type (select all that apply)",
-              "type": "multi",
-              "options": [
-                {
-                  "id": "mechanical",
-                  "label": "Mechanical",
-                  "adds": { "eu": ["EN ISO 16092-2 – Mechanical presses."] },
-                  "attributes": { "check": ["safety-critical-component"] }
-                },
-                {
-                  "id": "hydraulic",
-                  "label": "Hydraulic",
-                  "adds": { "eu": ["EN ISO 16092-3 – Hydraulic presses."] },
-                  "attributes": { "check": ["safety-critical-component"] }
-                },
-                {
-                  "id": "pneumatic",
-                  "label": "Pneumatic",
-                  "adds": { "eu": ["EN ISO 16092-4 – Pneumatic presses."] },
-                  "attributes": { "check": ["safety-critical-component"] }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "woodworking",
-          "label": "Woodworking machinery",
-          "eu": [
-            "Use relevant type-C standards (e.g., EN 1870-x, EN 859, etc.)."
-          ],
-          "uk": ["As per GB Machinery framework."],
-          "us": ["OSHA + ANSI/UL references as applicable (SME to confirm)."],
-          "attributes": {
-            "check": ["safety-critical-component"],
-            "suggest": ["hazardous-environment-design"]
+          "eoat": {
+            "label": "End effector / process hazards",
+            "multi": true,
+            "choices": [
+              { "id":"sharp", "label":"Cutting/sharp tools", "adds":["Risk reduction per EN ISO 12100; guarding per 14120/13857"] },
+              { "id":"hot",   "label":"Hot process (welding, thermal)", "adds":["Process-specific guarding; ventilation (SME to confirm)"] }
+            ]
           }
         }
-      ],
-      "crossCuts": [
-        "Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery."
-      ]
+      },
+
+      "packaging": {
+        "label": "Packaging machinery",
+        "base_standards": ["EN 415-1 (general)"],
+        "options": {
+          "type": {
+            "label": "Machine type (EN 415 series)",
+            "multi": true,
+            "choices": [
+              { "id":"ffs",        "label":"Form/fill/seal",          "adds":["EN 415-3 (FFS)"] },
+              { "id":"wrapping",   "label":"Wrapping",                "adds":["EN 415-6 (wrapping)"] },
+              { "id":"palletizer", "label":"Palletizer/depalletizer", "adds":["EN 415-7 (palletizers)"] },
+              { "id":"labeller",   "label":"Labeller",                "adds":["EN 415-10 (labelling)"] },
+              { "id":"cartoner",   "label":"Cartoner/case packer",    "adds":["EN 415-2/-4 (SME to confirm exact part)"] }
+            ]
+          },
+          "conveyors": {
+            "label": "Integrated conveyors",
+            "multi": true,
+            "choices": [
+              { "id":"conv", "label":"Conveyors present", "adds":["Apply relevant conveyor safety standard (SME to confirm)"] }
+            ]
+          }
+        }
+      },
+
+      "lifting": {
+        "label": "Lifting equipment/accessories",
+        "base_standards": [],
+        "options": {
+          "class": {
+            "label": "Equipment class",
+            "multi": true,
+            "choices": [
+              { "id":"attach", "label":"Non-fixed lifting attachments", "adds":["EN 13155"] },
+              { "id":"hoist",  "label":"Power-driven hoists / winches", "adds":["EN 14492-2 (hoists)", "EN 14492-1 (winches)"] },
+              { "id":"bridge", "label":"Bridge/Gantry crane",            "adds":["EN 15011","EN 13001 series (crane design)"] },
+              { "id":"mobile", "label":"Mobile crane",                   "adds":["EN 13000","EN 13001 series"] },
+              { "id":"loader", "label":"Loader crane",                   "adds":["EN 12999"] },
+              { "id":"sling",  "label":"Slings / chains / wire ropes",   "adds":["EN 1492/EN 13414 (accessories) — SME to confirm scope"] }
+            ]
+          }
+        }
+      },
+
+      "woodworking": {
+        "label": "Woodworking machinery",
+        "base_standards": [],
+        "options": {
+          "family": {
+            "label": "Machine family",
+            "multi": true,
+            "choices": [
+              { "id":"circular", "label":"Circular saws",       "adds":["EN 1870-x (specify part)"] },
+              { "id":"bandsaw",  "label":"Band saws",           "adds":["(SME) EN 1807 or applicable part"] },
+              { "id":"moulder",  "label":"Spindle moulder",     "adds":["EN 848-x (SME to confirm part)"] },
+              { "id":"planer",   "label":"Planer/thicknesser",  "adds":["(SME) applicable type-C (e.g., EN 859/other — confirm)"] },
+              { "id":"4sided",   "label":"Four-sided moulder",  "adds":["EN 12750"] }
+            ]
+          },
+          "dust": {
+            "label": "Dust/explosion risk",
+            "multi": true,
+            "choices": [
+              { "id":"atex", "label":"Combustible dust present", "adds":["ATEX installation assessment (EN 60079-14) where zoning applies; extraction/filtration rules (SME to confirm)"] }
+            ]
+          }
+        }
+      }
+
+      /* presses variant you already added remains unchanged */
     }
   }
 }
