@@ -131,21 +131,16 @@
           <input type="checkbox" id="hydraulics-pneumatics" value="hydraulics-pneumatics">
           <label for="hydraulics-pneumatics">Hydraulics / Pneumatics power — apply relevant safety parts (interlocking, guarding, pressure).</label>
         </div>
+        <div class="attribute-item" data-products="machinery">
+        <input type="checkbox" id="hazardous-location" value="hazardous-location">
+        <label for="hazardous-location">Use in potentially explosive atmospheres (machinery in zoned area) — check ATEX product/installation scope.</label>
+        </div>
+        <div class="attribute-item" data-products="machinery">
+        <input type="checkbox" id="software-cyber" value="software-cyber">
+        <label for="software-cyber">Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.</label>
+        </div>
       </div>
     </div>
- <div class="attribute-item" data-products="machinery">
-  <input type="checkbox" id="hazardous-location" value="hazardous-location">
-  <label for="hazardous-location">
-    Use in potentially explosive atmospheres (machinery in zoned area) — check ATEX product/installation scope.
-  </label>
-</div>
-<div class="attribute-item" data-products="machinery">
-  <input type="checkbox" id="software-cyber" value="software-cyber">
-  <label for="software-cyber">
-    Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.
-  </label>
-</div>
-    
     <!-- Certifications -->
     <div class="section">
       <h2>Certification Bodies/Goals</h2>
@@ -776,6 +771,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
