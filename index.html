@@ -34,6 +34,7 @@
     .req-badge{color:#b00020;font-weight:600}
     .muted{color:#666;font-size:.9em}
     .pill{display:inline-block;background:#eef7f7;border:1px dashed #8cc;color:#066;padding:6px 10px;border-radius:12px;margin:6px 8px 0 0}
+    .auto-suggest { outline: 2px solid #a6e3a1; background:#f6fff6; border-radius:4px; padding:2px 6px; }
     .subbox{border:1px solid #d7eaea;background:#f6fbfb;border-radius:6px;padding:10px;margin-top:10px}
     .group-title{font-weight:600;margin:6px 0 4px}
   </style>
@@ -401,9 +402,6 @@ function populateMachineryVariants(){
   });
 }
 
-/* no-op for now (prevents errors if called) */
-function applyVariantAttributeHints(/*variant*/){}
-
 // Render variant detail pills for BOTH schemas
 function renderVariantDetails(variant){
   const box = document.getElementById('variant-details');
@@ -476,16 +474,20 @@ function renderVariantDetails(variant){
     }
   }
 }
-  // Keep attribute hints working
-function applyVariantAttributeHints(variant){
-  document.querySelectorAll('.attribute-item label').forEach(l => l.classList.remove('auto-suggest'));
+  
+ // Highlight (and optionally auto-check) the variant's suggested attributes
+function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
+  // clear previous hints
+  document.querySelectorAll('.attribute-item label')
+    .forEach(l => l.classList.remove('auto-suggest'));
+
   const hints = variant?.suggestAttributes || [];
   hints.forEach(attrId => {
     const cb = document.getElementById(attrId);
-    if (cb){
-      const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
-      if (lbl) lbl.classList.add('auto-suggest');
-    }
+    if (!cb) return;
+    const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
+    if (lbl) lbl.classList.add('auto-suggest');
+    if (autoCheck) cb.checked = true; // set to true if you want them pre-checked
   });
 }
  
@@ -634,9 +636,11 @@ document.getElementById('product').addEventListener('change', ()=>{
   }
 });
 document.getElementById('mach-variant').addEventListener('change', () => {
-  const v = getCatalogVariant(document.getElementById('mach-variant').value);
+  const sel = document.getElementById('mach-variant');
+  const v = getCatalogVariant(sel.value);
   renderVariantDetails(v);
-  applyVariantAttributeHints(v); // harmless no-op for now
+  // highlight (and optionally auto-check) suggested attributes
+  applyVariantAttributeHints(v, { autoCheck: false });
 });
 
 /* ------------ Generate ------------- */
@@ -737,6 +741,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
