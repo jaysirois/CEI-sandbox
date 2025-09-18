@@ -96,7 +96,7 @@
         </div>
         <div class="attribute-item" data-products="explosive-atmospheres-installation,explosive-atmospheres-equipment,power-installations">
           <input type="checkbox" id="hazardous-environment-design" value="hazardous-environment-design">
-          <label for="hazardous-environment-design">Use in explosive atmospheres — ATEX product/installation rules.</label>
+          <label for="hazardous-environment-design">Use in explosive atmospheres (non-machinery) — ATEX product/installation rules (2014/34/EU & 60079-14).</label>
         </div>
         <div class="attribute-item" data-products="audio-video-equipment,video-surveillance">
           <input type="checkbox" id="wireless-connectivity" value="wireless-connectivity">
@@ -118,21 +118,7 @@
           <input type="checkbox" id="safety-critical-component" value="safety-critical-component">
           <label for="safety-critical-component">Safety-critical component — expect tighter safety evidence per product standard.</label>
         </div>
-        <!-- Machinery-only -->
-<div class="attribute-item" data-products="machinery">
-  <input type="checkbox" id="hazardous-location" value="hazardous-location">
-  <label for="hazardous-location">
-    Use in potentially explosive atmospheres (machinery) — check ATEX product/installation scope.
-  </label>
-</div>
-
-<div class="attribute-item" data-products="machinery">
-  <input type="checkbox" id="software-cyber" value="software-cyber">
-  <label for="software-cyber">
-    Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.
-  </label>
-</div>
-        <!-- Machinery-focused -->
+        <!-- Machinery-only focused -->
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="functional-safety" value="functional-safety">
           <label for="functional-safety">Functional safety (PL/SIL) — EN ISO 13849-1/-2 or IEC 62061.</label>
@@ -147,7 +133,19 @@
         </div>
       </div>
     </div>
-
+ <div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="hazardous-location" value="hazardous-location">
+  <label for="hazardous-location">
+    Use in potentially explosive atmospheres (machinery in zoned area) — check ATEX product/installation scope.
+  </label>
+</div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="software-cyber" value="software-cyber">
+  <label for="software-cyber">
+    Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.
+  </label>
+</div>
+    
     <!-- Certifications -->
     <div class="section">
       <h2>Certification Bodies/Goals</h2>
@@ -778,6 +776,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
