@@ -118,6 +118,20 @@
           <input type="checkbox" id="safety-critical-component" value="safety-critical-component">
           <label for="safety-critical-component">Safety-critical component — expect tighter safety evidence per product standard.</label>
         </div>
+        <!-- Machinery-only -->
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="hazardous-location" value="hazardous-location">
+  <label for="hazardous-location">
+    Use in potentially explosive atmospheres (machinery) — check ATEX product/installation scope.
+  </label>
+</div>
+
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="software-cyber" value="software-cyber">
+  <label for="software-cyber">
+    Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.
+  </label>
+</div>
         <!-- Machinery-focused -->
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="functional-safety" value="functional-safety">
@@ -289,7 +303,7 @@ function getMachineryVariants() {
 function getCatalogVariant(id){
   return getMachineryVariants().find(v => v.id === id) || null;
 }
-
+  
 /* ------------ Helpers / search ------------- */
 function filterAttributes(){
   const q = document.getElementById('attributes-search').value.toLowerCase();
@@ -313,6 +327,19 @@ function getSelectedCertifications(){
 }
 function getSelectedAttributes(){
   return Array.from(document.querySelectorAll('.attribute-item input[type=checkbox]:checked')).map(x=>x.value);
+}
+  function clearAutoSuggest() {
+  document.querySelectorAll('.attribute-item label')
+    .forEach(l => l.classList.remove('auto-suggest'));
+}
+
+function resetMachineryContext() {
+  // reset the variant UI + remove any leftover attribute highlights
+  const sel = document.getElementById('mach-variant');
+  if (sel) sel.value = 'none';
+  const box = document.getElementById('variant-details');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+  clearAutoSuggest();
 }
 
 /* ------------ Show/hide Advanced & GB block ------------- */
@@ -625,22 +652,32 @@ function certificationRequirements(certs, product, attrs, destinations){
 }
 
 /* ------------ Wiring: product & variant changes ------------- */
-document.getElementById('product').addEventListener('change', ()=>{
+document.getElementById('product').addEventListener('change', () => {
   const product = document.getElementById('product').value;
   updateAttributesVisibility();
-  if(product==='machinery'){
+
+  if (product === 'machinery') {
+    // starting fresh: clear any old highlights and details, then populate
+    resetMachineryContext();
     showMachineryBlock(true);
     populateMachineryVariants();
-  }else{
+  } else {
+    // leaving machinery: hide + clear everything, including highlights
     showMachineryBlock(false);
+    resetMachineryContext();
   }
 });
-document.getElementById('mach-variant').addEventListener('change', () => {
+
+  document.getElementById('mach-variant').addEventListener('change', () => {
   const sel = document.getElementById('mach-variant');
+  if (!sel || sel.value === 'none') {
+    resetMachineryContext();
+    return;
+  }
+
   const v = getCatalogVariant(sel.value);
   renderVariantDetails(v);
-  // highlight (and optionally auto-check) suggested attributes
-  applyVariantAttributeHints(v, { autoCheck: false });
+  applyVariantAttributeHints(v);   // this will re-add highlights for the new variant
 });
 
 /* ------------ Generate ------------- */
@@ -741,6 +778,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
