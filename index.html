@@ -118,6 +118,10 @@
           <input type="checkbox" id="safety-critical-component" value="safety-critical-component">
           <label for="safety-critical-component">Safety-critical component — expect tighter safety evidence per product standard.</label>
         </div>
+        <div class="attribute-item" data-products="machinery,video-surveillance,audio-video-equipment,medical-electrical-equipment">
+        <input type="checkbox" id="software-cyber" value="software-cyber">
+        <label for="software-cyber">Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.</label>
+      </div>
         <!-- Machinery-only focused -->
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="functional-safety" value="functional-safety">
@@ -135,9 +139,18 @@
         <input type="checkbox" id="hazardous-location" value="hazardous-location">
         <label for="hazardous-location">Use in potentially explosive atmospheres (machinery in zoned area) — check ATEX product/installation scope.</label>
         </div>
+        <!-- CONDITIONAL EU REGIMES FOR MACHINERY -->
         <div class="attribute-item" data-products="machinery">
-        <input type="checkbox" id="software-cyber" value="software-cyber">
-        <label for="software-cyber">Software / Cybersecurity (machinery control systems) — e.g., IEC 62443 / security hardening.</label>
+        <input type="checkbox" id="emc-electrical-equip" value="emc-electrical-equip">
+        <label for="emc-electrical-equip">Contains electrical/electronic equipment — EMC (2014/30/EU) may apply.</label>
+      </div>
+      <div class="attribute-item" data-products="machinery">
+        <input type="checkbox" id="ped-pressure-parts" value="ped-pressure-parts">
+        <label for="ped-pressure-parts">Contains pressure equipment/assemblies — Pressure Equipment Directive (2014/68/EU) scope check.</label>
+      </div>
+        <div class="attribute-item" data-products="machinery">
+          <input type="checkbox" id="outdoor-use" value="outdoor-use">
+          <label for="outdoor-use">Intended for outdoor use — Noise Emissions in the Environment (2000/14/EC) scope check.</label>
         </div>
       </div>
     </div>
@@ -771,6 +784,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
