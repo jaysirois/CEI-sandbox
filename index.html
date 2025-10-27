@@ -378,16 +378,7 @@ function toggleAdvancedSection(){
   document.getElementById('gb-marking-plan').style.display = anyUKSelected() ? 'block':'none';
   markRequiredFields();
 }
-document.querySelectorAll('.market-item input').forEach(cb =>
-  cb.addEventListener('change', () => {
-    toggleAdvancedSection();
-    applyCertificationHints(
-      window.currentRequirementsAll || [],
-      getSelectedDestinations(),
-      document.getElementById('product').value
-    );
-  })
-);
+document.querySelectorAll('.market-item input').forEach(cb=>cb.addEventListener('change',toggleAdvancedSection));
 
 /* ------------ Required state for operators ------------- */
 function computeOperatorRequirements(){
@@ -565,14 +556,12 @@ function baseFrameworks(product, attrs, destinations){
     const EU=['eu'];
     const addLVD_EMC=()=>{ add('EU LVD (2014/35/EU): electrical safety (CE, EU DoC, technical file).',EU); add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).',EU); };
     switch(product){
-      case 'machinery':
-        add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.',EU);
-        add('EU EMC (2014/30/EU): applies when machinery includes electrical/electronic equipment.',EU);
-        add('Note: LVD does not apply to equipment within the scope of the Machinery regime.',EU);
-        add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.',EU);
-        add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
-        add('Note: LVD does not apply to equipment within the scope of the Machinery regime.', EU);
-        break;
+    case 'machinery':
+      add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
+      add('EU EMC (2014/30/EU): applies when machinery includes electrical/electronic equipment.', EU);
+      add('Note: LVD does not apply to equipment within the scope of the Machinery regime.', EU);
+      add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.', EU);
+      break;
       case 'low-voltage-switchgear':
       case 'electrical-equipment-measurement':
       case 'heat-pumps-airconditioners':
@@ -727,7 +716,7 @@ function applyCertificationHints(requirements, destinations, product){
 document.getElementById('product').addEventListener('change', () => {
   const product = document.getElementById('product').value;
 
-  // 1) Clear any prior highlights/auto-suggests
+  // 1) Clear prior highlights/auto-suggests
   clearAutoSuggest();          // attribute pills
   clearCertificationHints();   // CE/UKCA checkboxes
 
@@ -746,7 +735,7 @@ document.getElementById('product').addEventListener('change', () => {
     showMachineryBlock(false);
   }
 
-  // 4) (Optional) refresh advanced section + CE/UKCA halos based on current markets
+  // 4) Refresh advanced section + CE/UKCA halos based on current markets
   toggleAdvancedSection();
   applyCertificationHints(
     window.currentRequirementsAll || [],
@@ -755,29 +744,17 @@ document.getElementById('product').addEventListener('change', () => {
   );
 });
 
-  if (product === 'machinery') {
-    // starting fresh: clear any old highlights and details, then populate
-    resetMachineryContext();
-    showMachineryBlock(true);
-    populateMachineryVariants();
-  } else {
-    // leaving machinery: hide + clear everything, including highlights
-    showMachineryBlock(false);
-    resetMachineryContext();
-  }
-});
-
-  document.getElementById('mach-variant').addEventListener('change', () => {
-  const sel = document.getElementById('mach-variant');
-  if (!sel || sel.value === 'none') {
-    resetMachineryContext();
-    return;
-  }
-
-  const v = getCatalogVariant(sel.value);
-  renderVariantDetails(v);
-  applyVariantAttributeHints(v);   // this will re-add highlights for the new variant
-});
+  // Destinations changed → update advanced section + CE/UKCA halos
+document.querySelectorAll('.market-item input').forEach(cb =>
+  cb.addEventListener('change', () => {
+    toggleAdvancedSection();
+    applyCertificationHints(
+      window.currentRequirementsAll || [],  // may be empty until first Generate
+      getSelectedDestinations(),
+      document.getElementById('product').value
+    );
+  })
+);
 
 function generateRoadmap(){
   const productSel = document.getElementById('product');
@@ -809,7 +786,6 @@ function generateRoadmap(){
   requirements = requirements.concat(econOperatorDuties(originSel.value, destinations, product, attrs));
   requirements = requirements.concat(certificationRequirements(certs, product, attrs, destinations));
 
-  // ← ADD THESE TWO LINES HERE
   window.currentRequirementsAll = requirements;             // Keep for re-use when destinations change
   applyCertificationHints(requirements, destinations, product); // Add green halos on CE/UKCA when appropriate
 
@@ -875,15 +851,24 @@ function exportToCSV(){
   showMachineryBlock(false);
   toggleAdvancedSection();
 
+  // If page ships with Machinery selected, populate immediately
   const productSel = document.getElementById('product');
   if (productSel?.value === 'machinery') {
     showMachineryBlock(true);
     populateMachineryVariants();
   }
+
+  // Initial pass on load (run once, after listeners exist and UI is bootstrapped)
+  applyCertificationHints(
+    window.currentRequirementsAll || [],
+    getSelectedDestinations(),
+    document.getElementById('product').value
+  );
 })();
 </script>
 </body>
 </html>
+
 
 
 
