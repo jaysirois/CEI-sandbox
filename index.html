@@ -34,7 +34,23 @@
     .req-badge{color:#b00020;font-weight:600}
     .muted{color:#666;font-size:.9em}
     .pill{display:inline-block;background:#eef7f7;border:1px dashed #8cc;color:#066;padding:6px 10px;border-radius:12px;margin:6px 8px 0 0}
-    .auto-suggest { outline: 2px solid #a6e3a1; background:#f6fff6; border-radius:4px; padding:2px 6px; }
+/* Apply the green halo to both attributes and certifications */
+.attribute-item label.auto-suggest,
+.certification-item label.auto-suggest {
+  display: inline-block;            /* prevents outline clipping */
+  outline: 2px solid #a6e3a1;
+  background: #f6fff6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: outline-color .15s ease, background-color .15s ease;
+}
+
+/* (optional) a subtle focus effect for keyboard users */
+.attribute-item input:focus + label,
+.certification-item input:focus + label {
+  outline: 2px solid #9bd890;
+  background: #f3fff3;
+}
     .subbox{border:1px solid #d7eaea;background:#f6fbfb;border-radius:6px;padding:10px;margin-top:10px}
     .group-title{font-weight:600;margin:6px 0 4px}
   </style>
@@ -362,7 +378,16 @@ function toggleAdvancedSection(){
   document.getElementById('gb-marking-plan').style.display = anyUKSelected() ? 'block':'none';
   markRequiredFields();
 }
-document.querySelectorAll('.market-item input').forEach(cb=>cb.addEventListener('change',toggleAdvancedSection));
+document.querySelectorAll('.market-item input').forEach(cb =>
+  cb.addEventListener('change', () => {
+    toggleAdvancedSection();
+    applyCertificationHints(
+      window.currentRequirementsAll || [],
+      getSelectedDestinations(),
+      document.getElementById('product').value
+    );
+  })
+);
 
 /* ------------ Required state for operators ------------- */
 function computeOperatorRequirements(){
@@ -531,6 +556,10 @@ function baseFrameworks(product, attrs, destinations){
   const needWireless = attrs.includes('wireless-connectivity') || attrs.includes('wireless-hmi');
   const res = [];
   const add = (t,m=[])=>res.push({text:t,specificMarkets:m});
+  const hasEMC     = attrs.includes('emc-electrical-equip') || attrs.includes('wireless-hmi') || attrs.includes('wireless-connectivity');
+  const hasATEX    = attrs.includes('hazardous-location') || attrs.includes('hazardous-environment-design');
+  const hasPED     = attrs.includes('ped-pressure-parts');
+  const hasOutdoor = attrs.includes('outdoor-use');
 
   if(destinations.some(d=>MARKET_GROUP[d]==='eu')){
     const EU=['eu'];
@@ -541,6 +570,8 @@ function baseFrameworks(product, attrs, destinations){
         add('EU EMC (2014/30/EU): applies when machinery includes electrical/electronic equipment.',EU);
         add('Note: LVD does not apply to equipment within the scope of the Machinery regime.',EU);
         add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.',EU);
+        add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
+        add('Note: LVD does not apply to equipment within the scope of the Machinery regime.', EU);
         break;
       case 'low-voltage-switchgear':
       case 'electrical-equipment-measurement':
@@ -567,6 +598,10 @@ function baseFrameworks(product, attrs, destinations){
     if(['audio-video-equipment','video-surveillance','luminaires','heat-pumps-airconditioners','commercial-refrigerating','air-cleaning-appliances','electrical-equipment-measurement','low-voltage-switchgear'].includes(product)){
       add('EU RoHS (2011/65/EU) where in EEE scope.',EU);
       add('EU WEEE (2012/19/EU) producer obligations where in scope.',EU);
+      if (hasEMC)    add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).', EU);
+  if (hasPED)    add('EU Pressure Equipment (2014/68/EU): classify, select module; CE where in scope.', EU);
+  if (hasATEX)   add('EU ATEX Product (2014/34/EU): equipment for potentially explosive atmospheres; CE; NB by category/zone.', EU);
+  if (hasOutdoor) add('EU Outdoor Noise (2000/14/EC): noise emission of outdoor equipment; CE where in scope.', EU);
     }
   }
   if(destinations.includes('uk')){
@@ -657,10 +692,68 @@ function certificationRequirements(certs, product, attrs, destinations){
   return res;
 }
 
+  function clearCertificationHints(){
+  document.querySelectorAll('.certification-item label').forEach(l => l.classList.remove('auto-suggest'));
+}
+
+function applyCertificationHints(requirements, destinations, product){
+  clearCertificationHints();
+  const hasEU = destinations.some(d => MARKET_GROUP[d] === 'eu');
+  const hasUK = destinations.includes('uk');
+
+  // Any of these in the list implies CE regime (Machinery, EMC, ATEX, PED, Outdoor Noise)
+  const ceWords = ['Machinery Directive', '2014/30/EU', '2014/34/EU', '2014/68/EU', '2000/14/EC'];
+  const ceInReqs = (requirements || []).some(r => ceWords.some(w => (r.text || '').includes(w)));
+
+  if (hasEU && (product === 'machinery' || ceInReqs)) {
+    const cb = document.getElementById('ce-marking');
+    if (cb && cb.nextElementSibling) {
+      cb.nextElementSibling.classList.add('auto-suggest');        // green ring
+      // Optional: also tick it automatically:
+      // cb.checked = true;
+    }
+  }
+  if (hasUK) {
+    const cb = document.getElementById('ukca-ce-gb');
+    if (cb && cb.nextElementSibling) {
+      cb.nextElementSibling.classList.add('auto-suggest');
+      // Optional auto-tick:
+      // cb.checked = true;
+    }
+  }
+}
+
 /* ------------ Wiring: product & variant changes ------------- */
 document.getElementById('product').addEventListener('change', () => {
   const product = document.getElementById('product').value;
+
+  // 1) Clear any prior highlights/auto-suggests
+  clearAutoSuggest();          // attribute pills
+  clearCertificationHints();   // CE/UKCA checkboxes
+
+  // 2) Reset machinery-specific UI on product switch
+  const variantSel = document.getElementById('mach-variant');
+  const detailsBox = document.getElementById('variant-details');
+  if (variantSel) variantSel.innerHTML = '<option value="none">Select a Machinery variant</option>';
+  if (detailsBox) { detailsBox.innerHTML = ''; detailsBox.style.display = 'none'; }
+
+  // 3) Normal product-driven updates
   updateAttributesVisibility();
+  if (product === 'machinery') {
+    showMachineryBlock(true);
+    populateMachineryVariants();
+  } else {
+    showMachineryBlock(false);
+  }
+
+  // 4) (Optional) refresh advanced section + CE/UKCA halos based on current markets
+  toggleAdvancedSection();
+  applyCertificationHints(
+    window.currentRequirementsAll || [],
+    getSelectedDestinations(),
+    product
+  );
+});
 
   if (product === 'machinery') {
     // starting fresh: clear any old highlights and details, then populate
@@ -686,7 +779,6 @@ document.getElementById('product').addEventListener('change', () => {
   applyVariantAttributeHints(v);   // this will re-add highlights for the new variant
 });
 
-/* ------------ Generate ------------- */
 function generateRoadmap(){
   const productSel = document.getElementById('product');
   const product = productSel.value;
@@ -717,7 +809,13 @@ function generateRoadmap(){
   requirements = requirements.concat(econOperatorDuties(originSel.value, destinations, product, attrs));
   requirements = requirements.concat(certificationRequirements(certs, product, attrs, destinations));
 
-  const list = document.getElementById('roadmap-list'); list.innerHTML='';
+  // ← ADD THESE TWO LINES HERE
+  window.currentRequirementsAll = requirements;             // Keep for re-use when destinations change
+  applyCertificationHints(requirements, destinations, product); // Add green halos on CE/UKCA when appropriate
+
+  // render
+  const list = document.getElementById('roadmap-list'); 
+  list.innerHTML='';
   const shown=[];
   requirements.forEach(req=>{
     const showAll = !req.specificMarkets?.length;
@@ -725,7 +823,9 @@ function generateRoadmap(){
     const showOne = req.specificMarkets?.some(m=>destinations.includes(m));
     if(showAll || showEU || showOne){
       shown.push(req);
-      const li=document.createElement('li'); li.textContent=req.text; list.appendChild(li);
+      const li=document.createElement('li'); 
+      li.textContent=req.text; 
+      list.appendChild(li);
     }
   });
 
@@ -784,6 +884,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
