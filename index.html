@@ -378,7 +378,6 @@ function toggleAdvancedSection(){
   document.getElementById('gb-marking-plan').style.display = anyUKSelected() ? 'block':'none';
   markRequiredFields();
 }
-document.querySelectorAll('.market-item input').forEach(cb=>cb.addEventListener('change',toggleAdvancedSection));
 
 /* ------------ Required state for operators ------------- */
 function computeOperatorRequirements(){
@@ -711,16 +710,24 @@ function applyCertificationHints(requirements, destinations, product){
     }
   }
 }
-
+  
+// ---------- Variant change handler ----------
+function onMachVariantChange() {
+  const sel = document.getElementById('mach-variant');
+  const v = getCatalogVariant(sel?.value);
+  renderVariantDetails(v);       // draws drive-type pills
+  applyVariantAttributeHints(v); // green highlights for suggested attrs
+}
+  
 /* ------------ Wiring: product & variant changes ------------- */
 document.getElementById('product').addEventListener('change', () => {
   const product = document.getElementById('product').value;
 
-  // 1) Clear prior highlights/auto-suggests
-  clearAutoSuggest();          // attribute pills
-  clearCertificationHints();   // CE/UKCA checkboxes
+  // 1) Clear prior highlights
+  clearAutoSuggest();
+  clearCertificationHints();
 
-  // 2) Reset machinery-specific UI on product switch
+  // 2) Reset machinery-specific UI
   const variantSel = document.getElementById('mach-variant');
   const detailsBox = document.getElementById('variant-details');
   if (variantSel) variantSel.innerHTML = '<option value="none">Select a Machinery variant</option>';
@@ -731,11 +738,14 @@ document.getElementById('product').addEventListener('change', () => {
   if (product === 'machinery') {
     showMachineryBlock(true);
     populateMachineryVariants();
+
+    // NEW: if a variant is already selected (or defaulted), render its pills now
+    if (variantSel && variantSel.value !== 'none') onMachVariantChange();
   } else {
     showMachineryBlock(false);
   }
 
-  // 4) Refresh advanced section + CE/UKCA halos based on current markets
+  // 4) Advanced section + CE/UKCA halos
   toggleAdvancedSection();
   applyCertificationHints(
     window.currentRequirementsAll || [],
@@ -868,6 +878,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
