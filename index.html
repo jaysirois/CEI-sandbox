@@ -161,7 +161,7 @@
 <div class="attribute-item" data-products="machinery">
   <input type="checkbox" id="pressure-equipment" value="pressure-equipment">
   <label for="pressure-equipment">
-    Pressure Equipment — 2014/68/EU (applies if the machine contains pressurized parts, piping, or vessels above the PED thresholds).
+    Pressure Equipment — 2014/68/EU (applies if the machine contains pressurized parts, piping, or vessels above the Pressure Equipment Directive thresholds).
   </label>
 </div>
 <div class="attribute-item" data-products="machinery">
@@ -573,7 +573,7 @@ case 'machinery':
   if (attrs.includes('emc-electrical-disturbance'))
     add('EU Electromagnetic Compatibility (2014/30/EU): applies when machinery includes electrical/electronic equipment.', EU);
   if (attrs.includes('pressure-equipment'))
-    add('EU Pressure Equipment Directive (2014/68/EU): applies where the machinery contains pressurised parts above the PED thresholds.', EU);
+    add('EU Pressure Equipment Directive (2014/68/EU): applies where the machinery contains pressurised parts above the Pressure Equipment Directive thresholds.', EU);
   if (attrs.includes('hazardous-location'))
     add('EU Explosive Atmosphere Directive (2014/34/EU): applies when the machinery is intended for use in a potentially explosive atmosphere.', EU);
   if (attrs.includes('outdoor-use'))
@@ -911,6 +911,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
