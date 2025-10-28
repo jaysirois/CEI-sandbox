@@ -477,6 +477,35 @@ function renderVariantDetails(variant){
     box.appendChild(info);
   }
 
+  // --- Render drive type options (if any) ---
+  if (variant.details?.driveTypes?.length) {
+    const group = document.createElement('div');
+    group.innerHTML = '<b>Press drive type</b>';
+    variant.details.driveTypes.forEach(d => {
+      const wrap = document.createElement('div');
+      wrap.classList.add('drive-option');
+      wrap.innerHTML = `
+        <input type="checkbox" id="${d.id}" value="${d.id}">
+        <label for="${d.id}">${d.label}</label>
+      `;
+      group.appendChild(wrap);
+    });
+    box.appendChild(group);
+  }
+
+  // Add event listeners *after* drive-type checkboxes exist
+  document.querySelectorAll('#variant-details input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const selectedDrive = (variant.details.driveTypes || []).find(d => d.id === cb.value);
+      if (selectedDrive) variant.details.selectedDrive = selectedDrive;
+      applyVariantAttributeHints(variant);
+    });
+  });
+
+  // If anything was rendered, show the box
+  box.style.display = 'block';
+}
+  
 // helper to append a pill group
   const addGroup = (title) => {
     box.style.display = 'block';
@@ -537,18 +566,17 @@ function renderVariantDetails(variant){
   
  // Highlight (and optionally auto-check) the variant's suggested attributes
 function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
-  // Clear all previous highlights
+  // Clear previous
   document.querySelectorAll('.attribute-item label')
     .forEach(l => l.classList.remove('auto-suggest'));
 
-  // Gather all suggested attributes: variant + driveType-specific
+  // Collect both top-level + drive-type hints
   let hints = variant?.suggestAttributes || [];
-  if (variant?.details?.selectedDrive) {
-    const drive = variant.details.selectedDrive;
-    hints = hints.concat(drive.suggestAttributes || []);
+  if (variant?.details?.selectedDrive?.suggestAttributes) {
+    hints = hints.concat(variant.details.selectedDrive.suggestAttributes);
   }
 
-  // Apply highlight and optionally check
+  // Apply highlights
   hints.forEach(attrId => {
     const cb = document.getElementById(attrId);
     if (!cb) return;
@@ -937,24 +965,3 @@ function exportToCSV(){
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
