@@ -721,22 +721,30 @@ function applyCertificationHints(requirements, destinations, product) {
     ceWords.some(w => (r.text || '').includes(w))
   );
 
-  // ✅ CE MARKING (EU)
-  if (hasEU && (product === 'machinery' || ceInReqs)) {
-    const cb = document.getElementById('ce-marking');
-    if (cb && cb.nextElementSibling) {
-      cb.nextElementSibling.classList.add('auto-suggest'); // green halo
-      cb.checked = true; // ✅ automatically ticked when CE applies
+  const ceBox = document.getElementById('ce-marking');
+  const ukBox = document.getElementById('ukca-ce-gb');
+
+  // --- CE MARKING (EU) ---
+  if (ceBox) {
+    const lbl = ceBox.nextElementSibling;
+    if (hasEU && (product === 'machinery' || ceInReqs)) {
+      lbl.classList.add('auto-suggest');
+      ceBox.checked = true;
+    } else {
+      lbl.classList.remove('auto-suggest');
+      ceBox.checked = false;
     }
   }
 
-  // ✅ UKCA / CE (Great Britain)
-  if (hasUK) {
-    const cb = document.getElementById('ukca-ce-gb');
-    if (cb && cb.nextElementSibling) {
-      cb.nextElementSibling.classList.add('auto-suggest');
-      // Optionally auto-check if CE or UKCA directives apply
-      cb.checked = true;
+  // --- UKCA / CE (Great Britain) ---
+  if (ukBox) {
+    const lbl = ukBox.nextElementSibling;
+    if (hasUK) {
+      lbl.classList.add('auto-suggest');
+      ukBox.checked = true;
+    } else {
+      lbl.classList.remove('auto-suggest');
+      ukBox.checked = false;
     }
   }
 }
@@ -911,6 +919,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
