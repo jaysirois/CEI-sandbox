@@ -8,7 +8,12 @@
           "id": "press",
           "label": "Presses",
           "baseStandards": ["EN ISO 16092-1"],
-          "suggestAttributes": ["functional-safety", "hydraulics-pneumatics"],
+          "suggestAttributes": ["functional-safety",
+    "hydraulics-pneumatics",
+    "emc-electrical-disturbance",
+    "pressure-equipment",
+    "hazardous-location",
+    "outdoor-use"],
           "details": {
             "driveTypes": [
               { "id": "mechanical", "label": "Mechanical press (add EN ISO 16092-2)", "standard": "EN ISO 16092-2" },
@@ -34,7 +39,7 @@
           "id": "robot",
           "label": "Industrial robots",
           "baseStandards": ["EN ISO 10218-1", "EN ISO 10218-2"],
-          "suggestAttributes": ["functional-safety", "software-cyber"],
+          "suggestAttributes": ["functional-safety", "software-cyber", "emc-electrical-disturbance"],
           "details": { "collaborative": true }
         },
         {
@@ -74,3 +79,4 @@
     }
   }
 }
+
