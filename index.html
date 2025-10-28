@@ -859,7 +859,9 @@ function exportToCSV(){
   const a = document.createElement('a'); a.href=url; a.download='compliance_requirements.csv';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
-
+    document.getElementById('mach-variant')
+  .addEventListener('change', onMachVariantChange);
+  
 /* ------------ Init ------------ */
 (async function init(){
   try { await loadCatalog(); }
@@ -886,6 +888,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
