@@ -151,23 +151,31 @@
           <input type="checkbox" id="hydraulics-pneumatics" value="hydraulics-pneumatics">
           <label for="hydraulics-pneumatics">Hydraulics / Pneumatics power — apply relevant safety parts (interlocking, guarding, pressure).</label>
         </div>
-        <div class="attribute-item" data-products="machinery">
-        <input type="checkbox" id="hazardous-location" value="hazardous-location">
-        <label for="hazardous-location">Use in potentially explosive atmospheres (machinery in zoned area) — check ATEX product/installation scope.</label>
-        </div>
-        <!-- CONDITIONAL EU REGIMES FOR MACHINERY -->
-        <div class="attribute-item" data-products="machinery">
-        <input type="checkbox" id="emc-electrical-equip" value="emc-electrical-equip">
-        <label for="emc-electrical-equip">Contains electrical/electronic equipment — EMC (2014/30/EU) may apply.</label>
-      </div>
-      <div class="attribute-item" data-products="machinery">
-        <input type="checkbox" id="ped-pressure-parts" value="ped-pressure-parts">
-        <label for="ped-pressure-parts">Contains pressure equipment/assemblies — Pressure Equipment Directive (2014/68/EU) scope check.</label>
-      </div>
-        <div class="attribute-item" data-products="machinery">
-          <input type="checkbox" id="outdoor-use" value="outdoor-use">
-          <label for="outdoor-use">Intended for outdoor use — Noise Emissions in the Environment (2000/14/EC) scope check.</label>
-        </div>
+<!-- Conditional Directives (EU only) -->
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="emc-electrical-disturbance" value="emc-electrical-disturbance">
+  <label for="emc-electrical-disturbance">
+    Electrical equipment / EMC — 2014/30/EU (applies if the machine contains electrical or electronic equipment that can generate or be disturbed by EM noise).
+  </label>
+</div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="pressure-equipment" value="pressure-equipment">
+  <label for="pressure-equipment">
+    Pressure Equipment — 2014/68/EU (applies if the machine contains pressurized parts, piping, or vessels above the PED thresholds).
+  </label>
+</div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="hazardous-location" value="hazardous-location">
+  <label for="hazardous-location">
+    Use in potentially explosive atmospheres (ATEX) — 2014/34/EU (applies if the machine is intended for operation in a zoned area).
+  </label>
+</div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="outdoor-use" value="outdoor-use">
+  <label for="outdoor-use">
+    Outdoor noise emission — 2000/14/EC (applies if the machine is intended for outdoor use).
+  </label>
+</div>
       </div>
     </div>
     <!-- Certifications -->
@@ -878,6 +886,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
