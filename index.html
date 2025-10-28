@@ -112,11 +112,11 @@
         </div>
         <div class="attribute-item" data-products="explosive-atmospheres-installation,explosive-atmospheres-equipment,power-installations">
           <input type="checkbox" id="hazardous-environment-design" value="hazardous-environment-design">
-          <label for="hazardous-environment-design">Use in explosive atmospheres (non-machinery) — ATEX product/installation rules (2014/34/EU & 60079-14).</label>
+          <label for="hazardous-environment-design">Use in explosive atmospheres (non-machinery) — Explosive Atmosphere product/installation rules (2014/34/EU & 60079-14).</label>
         </div>
         <div class="attribute-item" data-products="audio-video-equipment,video-surveillance">
           <input type="checkbox" id="wireless-connectivity" value="wireless-connectivity">
-          <label for="wireless-connectivity">Wireless HMI / Connectivity — RED (EU), GB Radio Regs, FCC.</label>
+          <label for="wireless-connectivity">Wireless HMI / Connectivity — Radio Equipment Directive (EU), GB Radio Regs, FCC.</label>
         </div>
         <div class="attribute-item" data-products="low-voltage-cables">
           <input type="checkbox" id="fire-resistant" value="fire-resistant">
@@ -145,7 +145,7 @@
         </div>
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="wireless-hmi" value="wireless-hmi">
-          <label for="wireless-hmi">Wireless HMI on machine — RED/FCC as applicable.</label>
+          <label for="wireless-hmi">Wireless HMI on machine — Radio Equipment Directive/FCC as applicable.</label>
         </div>
         <div class="attribute-item" data-products="machinery">
           <input type="checkbox" id="hydraulics-pneumatics" value="hydraulics-pneumatics">
@@ -155,7 +155,7 @@
 <div class="attribute-item" data-products="machinery">
   <input type="checkbox" id="emc-electrical-disturbance" value="emc-electrical-disturbance">
   <label for="emc-electrical-disturbance">
-    Electrical equipment / EMC — 2014/30/EU (applies if the machine contains electrical or electronic equipment that can generate or be disturbed by EM noise).
+    Electrical equipment / Electromagnetic Compatibility — 2014/30/EU (applies if the machine contains electrical or electronic equipment that can generate or be disturbed by EM noise).
   </label>
 </div>
 <div class="attribute-item" data-products="machinery">
@@ -561,14 +561,25 @@ function baseFrameworks(product, attrs, destinations){
 
   if(destinations.some(d=>MARKET_GROUP[d]==='eu')){
     const EU=['eu'];
-    const addLVD_EMC=()=>{ add('EU LVD (2014/35/EU): electrical safety (CE, EU DoC, technical file).',EU); add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).',EU); };
+    const addLVD_EMC=()=>{ add('EU Low Voltage Directive (2014/35/EU): electrical safety (CE, EU DoC, technical file).',EU); add('EU Electromagnetic Compatibility (2014/30/EU): electromagnetic compatibility (CE).',EU); };
     switch(product){
     case 'machinery':
-      add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
-      add('EU EMC (2014/30/EU): applies when machinery includes electrical/electronic equipment.', EU);
-      add('Note: LVD does not apply to equipment within the scope of the Machinery regime.', EU);
-      add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.', EU);
-      break;
+case 'machinery':
+  add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
+  add('Note: Low Voltage Directive does not apply to equipment within the scope of the Machinery regime.', EU);
+  add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.', EU);
+
+  // Conditional directives based on selected attributes
+  if (attrs.includes('emc-electrical-disturbance'))
+    add('EU Electromagnetic Compatibility (2014/30/EU): applies when machinery includes electrical/electronic equipment.', EU);
+  if (attrs.includes('pressure-equipment'))
+    add('EU Pressure Equipment Directive (2014/68/EU): applies where the machinery contains pressurised parts above the PED thresholds.', EU);
+  if (attrs.includes('hazardous-location'))
+    add('EU Explosive Atmosphere Directive (2014/34/EU): applies when the machinery is intended for use in a potentially explosive atmosphere.', EU);
+  if (attrs.includes('outdoor-use'))
+    add('EU Outdoor Noise Directive (2000/14/EC): applies when the machinery is intended for outdoor use.', EU);
+  break;
+
       case 'low-voltage-switchgear':
       case 'electrical-equipment-measurement':
       case 'heat-pumps-airconditioners':
@@ -578,31 +589,31 @@ function baseFrameworks(product, attrs, destinations){
         addLVD_EMC();break;
       case 'audio-video-equipment':
       case 'video-surveillance':
-        addLVD_EMC(); if(needWireless) add('EU RED (2014/53/EU): radio spectrum + safety + EMC under RED (CE).',EU); break;
+        addLVD_EMC(); if(needWireless) add('EU Radio Equipment Directive (2014/53/EU): radio spectrum + safety + Electromagnetic Compatibility under Radio Equipment Directive (CE).',EU); break;
       case 'explosive-atmospheres-equipment':
-        add('EU ATEX Product Directive (2014/34/EU): CE; NB involvement by category/zone.',EU); break;
+        add('EU Explosive Atmosphere Product Directive (2014/34/EU): CE; NB involvement by category/zone.',EU); break;
       case 'medical-electrical-equipment':
-        add('EU MDR (2017/745): CE; EN 60601-1 safety; EN 60601-1-2 EMC; EN 62366 usability; EN ISO 14971 risk. LVD not applied.',EU); break;
+        add('EU MDR (2017/745): CE; EN 60601-1 safety; EN 60601-1-2 Electromagnetic Compatibility; EN 62366 usability; EN ISO 14971 risk. Low Voltage Directive not applied.',EU); break;
       case 'low-voltage-cables':
         add('EU CPR (305/2011) for reaction-to-fire (EN 50575): CE with Declaration of Performance (DoP).',EU); break;
       case 'photovoltaic-systems':
       case 'power-installations':
-        add('EU: installation/system standards apply; CE marking is for constituent equipment (e.g., inverters under LVD/EMC).',EU); break;
+        add('EU: installation/system standards apply; CE marking is for constituent equipment (e.g., inverters under Low Voltage Directive/Electromagnetic Compatibility).',EU); break;
       default:
         addLVD_EMC();
     }
     if(['audio-video-equipment','video-surveillance','luminaires','heat-pumps-airconditioners','commercial-refrigerating','air-cleaning-appliances','electrical-equipment-measurement','low-voltage-switchgear'].includes(product)){
       add('EU RoHS (2011/65/EU) where in EEE scope.',EU);
       add('EU WEEE (2012/19/EU) producer obligations where in scope.',EU);
-      if (hasEMC)    add('EU EMC (2014/30/EU): electromagnetic compatibility (CE).', EU);
+      if (hasEMC)    add('EU Electromagnetic Compatibility (2014/30/EU): electromagnetic compatibility (CE).', EU);
   if (hasPED)    add('EU Pressure Equipment (2014/68/EU): classify, select module; CE where in scope.', EU);
-  if (hasATEX)   add('EU ATEX Product (2014/34/EU): equipment for potentially explosive atmospheres; CE; NB by category/zone.', EU);
+  if (hasATEX)   add('EU Explosive Atmosphere Product (2014/34/EU): equipment for potentially explosive atmospheres; CE; NB by category/zone.', EU);
   if (hasOutdoor) add('EU Outdoor Noise (2000/14/EC): noise emission of outdoor equipment; CE where in scope.', EU);
     }
   }
   if(destinations.includes('uk')){
-    add('GB Electrical Equipment (Safety) Regulations 2016 (UK LVD analogue).',['uk']);
-    add('GB EMC Regulations 2016.',['uk']);
+    add('GB Electrical Equipment (Safety) Regulations 2016 (UK Low Voltage Directive analogue).',['uk']);
+    add('GB Electromagnetic Compatibility Regulations 2016.',['uk']);
     if(needWireless) add('GB Radio Equipment Regulations 2017.',['uk']);
     if(product==='explosive-atmospheres-equipment') add('UKEX: Equipment for Use in Potentially Explosive Atmospheres Regulations 2016.',['uk']);
     if(product==='medical-electrical-equipment') add('UK Medical Devices Regulations 2002 (as amended).',['uk']);
@@ -683,7 +694,7 @@ function certificationRequirements(certs, product, attrs, destinations){
   }
   if(certs.includes('ce-notified-body')){
     const mkts=[]; if(destinations.some(d=>MARKET_GROUP[d]==='eu')) mkts.push('eu'); if(destinations.includes('uk')) mkts.push('uk');
-    if(mkts.length) add('Third-party assessment: engage Notified Body / UK Approved Body where required (e.g., MDR, ATEX, certain modules).',mkts);
+    if(mkts.length) add('Third-party assessment: engage Notified Body / UK Approved Body where required (e.g., MDR, Explosive Atmosphere, certain modules).',mkts);
   }
   return res;
 }
@@ -697,7 +708,7 @@ function applyCertificationHints(requirements, destinations, product){
   const hasEU = destinations.some(d => MARKET_GROUP[d] === 'eu');
   const hasUK = destinations.includes('uk');
 
-  // Any of these in the list implies CE regime (Machinery, EMC, ATEX, PED, Outdoor Noise)
+  // Any of these in the list implies CE regime (Machinery, Electromagnetic Compatibility, Explosive Atmosphere, Pressure Equipment Directive, Outdoor Noise)
   const ceWords = ['Machinery Directive', '2014/30/EU', '2014/34/EU', '2014/68/EU', '2000/14/EC'];
   const ceInReqs = (requirements || []).some(r => ceWords.some(w => (r.text || '').includes(w)));
 
@@ -793,7 +804,8 @@ function generateRoadmap(){
   if(r.needsUKRP && document.getElementById('ukrp-country').value==='none') return alert('Please select the UK Responsible Person country.');
 
   let requirements = [];
-  requirements.push({text:`${productSel.options[productSel.selectedIndex].text} – base EN reference captured from the selector.`,specificMarkets:[]});
+// Remove this line to avoid duplication
+// requirements.push({ text: `${productSel.options[productSel.selectedIndex].text} – base EN reference captured from the selector.`, specificMarkets: [] });
   requirements = requirements.concat(baseFrameworks(product, attrs, destinations));
   requirements = requirements.concat(variantStandards(product));
 
@@ -888,6 +900,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
