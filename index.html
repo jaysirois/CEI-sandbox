@@ -703,29 +703,40 @@ function certificationRequirements(certs, product, attrs, destinations){
   document.querySelectorAll('.certification-item label').forEach(l => l.classList.remove('auto-suggest'));
 }
 
-function applyCertificationHints(requirements, destinations, product){
+function applyCertificationHints(requirements, destinations, product) {
   clearCertificationHints();
   const hasEU = destinations.some(d => MARKET_GROUP[d] === 'eu');
   const hasUK = destinations.includes('uk');
 
-  // Any of these in the list implies CE regime (Machinery, Electromagnetic Compatibility, Explosive Atmosphere, Pressure Equipment Directive, Outdoor Noise)
-  const ceWords = ['Machinery Directive', '2014/30/EU', '2014/34/EU', '2014/68/EU', '2000/14/EC'];
-  const ceInReqs = (requirements || []).some(r => ceWords.some(w => (r.text || '').includes(w)));
+  // CE-based directives or regulations that require CE marking
+  const ceWords = [
+    'Machinery Directive',
+    '2014/30/EU',  // EMC
+    '2014/34/EU',  // ATEX
+    '2014/68/EU',  // Pressure Equipment
+    '2000/14/EC'   // Outdoor Noise
+  ];
 
+  const ceInReqs = (requirements || []).some(r =>
+    ceWords.some(w => (r.text || '').includes(w))
+  );
+
+  // ✅ CE MARKING (EU)
   if (hasEU && (product === 'machinery' || ceInReqs)) {
     const cb = document.getElementById('ce-marking');
     if (cb && cb.nextElementSibling) {
-      cb.nextElementSibling.classList.add('auto-suggest');        // green ring
-      // Optional: also tick it automatically:
-      // cb.checked = true;
+      cb.nextElementSibling.classList.add('auto-suggest'); // green halo
+      cb.checked = true; // ✅ automatically ticked when CE applies
     }
   }
+
+  // ✅ UKCA / CE (Great Britain)
   if (hasUK) {
     const cb = document.getElementById('ukca-ce-gb');
     if (cb && cb.nextElementSibling) {
       cb.nextElementSibling.classList.add('auto-suggest');
-      // Optional auto-tick:
-      // cb.checked = true;
+      // Optionally auto-check if CE or UKCA directives apply
+      cb.checked = true;
     }
   }
 }
@@ -900,6 +911,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
