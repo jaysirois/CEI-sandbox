@@ -147,10 +147,14 @@
           <input type="checkbox" id="wireless-hmi" value="wireless-hmi">
           <label for="wireless-hmi">Wireless HMI on machine — Radio Equipment Directive/FCC as applicable.</label>
         </div>
-        <div class="attribute-item" data-products="machinery">
-          <input type="checkbox" id="hydraulics-pneumatics" value="hydraulics-pneumatics">
-          <label for="hydraulics-pneumatics">Hydraulics / Pneumatics power — apply relevant safety parts (interlocking, guarding, pressure).</label>
-        </div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="hydraulic-power" value="hydraulic-power">
+  <label for="hydraulic-power">Hydraulic fluid power — EN ISO 4413 (safety for hydraulic systems).</label>
+</div>
+<div class="attribute-item" data-products="machinery">
+  <input type="checkbox" id="pneumatic-power" value="pneumatic-power">
+  <label for="pneumatic-power">Pneumatic fluid power — EN ISO 4414 (safety for pneumatic systems).</label>
+</div>
 <!-- Conditional Directives (EU only) -->
 <div class="attribute-item" data-products="machinery">
   <input type="checkbox" id="emc-electrical-disturbance" value="emc-electrical-disturbance">
@@ -533,17 +537,24 @@ function renderVariantDetails(variant){
   
  // Highlight (and optionally auto-check) the variant's suggested attributes
 function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
-  // clear previous hints
+  // Clear all previous highlights
   document.querySelectorAll('.attribute-item label')
     .forEach(l => l.classList.remove('auto-suggest'));
 
-  const hints = variant?.suggestAttributes || [];
+  // Gather all suggested attributes: variant + driveType-specific
+  let hints = variant?.suggestAttributes || [];
+  if (variant?.details?.selectedDrive) {
+    const drive = variant.details.selectedDrive;
+    hints = hints.concat(drive.suggestAttributes || []);
+  }
+
+  // Apply highlight and optionally check
   hints.forEach(attrId => {
     const cb = document.getElementById(attrId);
     if (!cb) return;
     const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
     if (lbl) lbl.classList.add('auto-suggest');
-    if (autoCheck) cb.checked = true; // set to true if you want them pre-checked
+    if (autoCheck) cb.checked = true;
   });
 }
  
@@ -566,7 +577,6 @@ function baseFrameworks(product, attrs, destinations){
     case 'machinery':
 case 'machinery':
   add('EU Machinery Directive 2006/42/EC / transition to Machinery Regulation (EU) 2023/1230: CE; NB involvement per category.', EU);
-  add('Note: Low Voltage Directive does not apply to equipment within the scope of the Machinery regime.', EU);
   add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.', EU);
 
   // Conditional directives based on selected attributes
@@ -804,7 +814,7 @@ document.querySelectorAll('.market-item input').forEach(cb =>
   })
 );
 
-function generateRoadmap(){
+function generateRoadmap() {
   const productSel = document.getElementById('product');
   const product = productSel.value;
   const originSel = document.getElementById('country-of-origin');
@@ -812,48 +822,55 @@ function generateRoadmap(){
   const attrs = getSelectedAttributes();
   const certs = getSelectedCertifications();
 
-  if(product==='none') return alert('Please select a product or system.');
-  if(originSel.value==='none') return alert('Please select the place of manufacture (origin).');
-  if(destinations.length===0) return alert('Please select at least one destination market.');
+  if (product === 'none') return alert('Please select a product or system.');
+  if (originSel.value === 'none') return alert('Please select the place of manufacture (origin).');
+  if (destinations.length === 0) return alert('Please select at least one destination market.');
 
   const r = computeOperatorRequirements();
-  if(r.needsEUImporter && document.getElementById('eu-importer-country').value==='none') return alert('Please select an EU importer country.');
-  if(r.needsEUAR && document.getElementById('eu-ar-country').value==='none') return alert('Please select an EU Authorized Representative country.');
-  if(r.needsGBImporter && document.getElementById('uk-importer-country').value==='none') return alert('Please select the GB importer country.');
-  if(r.needsUKRP && document.getElementById('ukrp-country').value==='none') return alert('Please select the UK Responsible Person country.');
+  if (r.needsEUImporter && document.getElementById('eu-importer-country').value === 'none') return alert('Please select an EU importer country.');
+  if (r.needsEUAR && document.getElementById('eu-ar-country').value === 'none') return alert('Please select an EU Authorized Representative country.');
+  if (r.needsGBImporter && document.getElementById('uk-importer-country').value === 'none') return alert('Please select the GB importer country.');
+  if (r.needsUKRP && document.getElementById('ukrp-country').value === 'none') return alert('Please select the UK Responsible Person country.');
 
   let requirements = [];
-// Remove this line to avoid duplication
-// requirements.push({ text: `${productSel.options[productSel.selectedIndex].text} – base EN reference captured from the selector.`, specificMarkets: [] });
-  requirements = requirements.concat(baseFrameworks(product, attrs, destinations));
-  requirements = requirements.concat(variantStandards(product));
 
-  if(destinations.includes('italy') && ['power-installations','lightning-protection','photovoltaic-systems'].includes(product)){
-    requirements.push({text:'Italy (installation): D.M. 37/2008 + CEI installation codes (e.g., CEI 64-8; CEI 0-21/0-16; CEI 11-27).',specificMarkets:['italy']});
+  // --- Standards first ---
+  requirements = requirements.concat(variantStandards(product)); // Variant type-C standards
+  requirements = requirements.concat(baseFrameworks(product, attrs, destinations)); // Base EN standards & directives
+
+  // --- Country-specific or additional rules ---
+  if (destinations.includes('italy') && ['power-installations', 'lightning-protection', 'photovoltaic-systems'].includes(product)) {
+    requirements.push({
+      text: 'Italy (installation): D.M. 37/2008 + CEI installation codes (e.g., CEI 64-8; CEI 0-21/0-16; CEI 11-27).',
+      specificMarkets: ['italy']
+    });
   }
 
+  // --- Operator & certification duties last ---
   requirements = requirements.concat(econOperatorDuties(originSel.value, destinations, product, attrs));
   requirements = requirements.concat(certificationRequirements(certs, product, attrs, destinations));
 
-  window.currentRequirementsAll = requirements;             // Keep for re-use when destinations change
-  applyCertificationHints(requirements, destinations, product); // Add green halos on CE/UKCA when appropriate
+  // --- Reuse + update CE/UKCA hints ---
+  window.currentRequirementsAll = requirements;
+  applyCertificationHints(requirements, destinations, product);
 
-  // render
-  const list = document.getElementById('roadmap-list'); 
-  list.innerHTML='';
-  const shown=[];
-  requirements.forEach(req=>{
+  // --- Render visible list ---
+  const list = document.getElementById('roadmap-list');
+  list.innerHTML = '';
+  const shown = [];
+  requirements.forEach(req => {
     const showAll = !req.specificMarkets?.length;
-    const showEU  = req.specificMarkets?.includes('eu') && destinations.some(d=>['france','germany','italy'].includes(d));
-    const showOne = req.specificMarkets?.some(m=>destinations.includes(m));
-    if(showAll || showEU || showOne){
+    const showEU = req.specificMarkets?.includes('eu') && destinations.some(d => ['france', 'germany', 'italy'].includes(d));
+    const showOne = req.specificMarkets?.some(m => destinations.includes(m));
+    if (showAll || showEU || showOne) {
       shown.push(req);
-      const li=document.createElement('li'); 
-      li.textContent=req.text; 
+      const li = document.createElement('li');
+      li.textContent = req.text;
       list.appendChild(li);
     }
   });
 
+  // --- Store details + show section ---
   window.currentRoadmapDetails = {
     product: productSel.options[productSel.selectedIndex].text,
     attributes: attrs,
@@ -863,7 +880,8 @@ function generateRoadmap(){
     requirementsAll: requirements,
     requirementsShown: shown
   };
-  document.getElementById('roadmap-section').style.display='block';
+
+  document.getElementById('roadmap-section').style.display = 'block';
 }
 
 function exportToCitation(){
@@ -919,6 +937,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
