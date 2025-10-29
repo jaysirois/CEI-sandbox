@@ -671,14 +671,20 @@ function variantStandards(product){
   const v = getCatalogVariant(vId);
   if (!v) return out;
 
+  // --- 1. Base variant standards ---
   (v.base_standards || v.baseStandards || []).forEach(s => add(s));
 
-  // From pills: handle both data-adds and data-std
+  // --- 2. Drive-type standards (from JSON + checked boxes) ---
   document.querySelectorAll('#variant-details input[type="checkbox"]:checked').forEach(ch => {
     const adds = ch.getAttribute('data-adds');
     const std = ch.getAttribute('data-std');
+
     if (adds) adds.split('::').filter(Boolean).forEach(s => add(s));
     if (std) add(std);
+
+    // ✅ Extra check: pull standard directly from JSON if not in DOM
+    const drive = v.details?.driveTypes?.find(d => d.id === ch.value);
+    if (drive?.standard) add(drive.standard);
   });
 
   return out;
@@ -973,6 +979,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
