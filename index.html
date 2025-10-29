@@ -467,10 +467,10 @@ function renderVariantDetails(variant){
   const box = document.getElementById('variant-details');
   box.innerHTML = '';
   box.style.display = 'none';
-  if(!variant) return;
+  if (!variant) return;
 
   const base = variant.base_standards || variant.baseStandards || [];
-  if (base.length){
+  if (base.length) {
     const info = document.createElement('div');
     info.className = 'muted';
     info.textContent = 'Variant base standards: ' + base.join(', ');
@@ -491,7 +491,25 @@ function renderVariantDetails(variant){
       group.appendChild(wrap);
     });
     box.appendChild(group);
+
+    // ✅ Attach change listeners for each driveType checkbox
+    box.querySelectorAll('.drive-option input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        // Find the selected drive type object from JSON
+        const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
+
+        // Store it in the variant temporarily for highlighting
+        if (selectedDrive) variant.details.selectedDrive = selectedDrive;
+
+        // Re-run highlight logic to include this drive’s suggestAttributes
+        applyVariantAttributeHints(variant);
+      });
+    });
   }
+
+  // Finally show the box once built
+  box.style.display = 'block';
+}
 
   // Add event listeners *after* drive-type checkboxes exist
   document.querySelectorAll('#variant-details input[type=checkbox]').forEach(cb => {
@@ -965,3 +983,4 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
