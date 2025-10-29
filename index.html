@@ -477,6 +477,21 @@ function renderVariantDetails(variant){
     box.appendChild(info);
   }
 
+// Render variant detail pills for BOTH schemas
+function renderVariantDetails(variant){
+  const box = document.getElementById('variant-details');
+  box.innerHTML = '';
+  box.style.display = 'none';
+  if (!variant) return;
+
+  const base = variant.base_standards || variant.baseStandards || [];
+  if (base.length) {
+    const info = document.createElement('div');
+    info.className = 'muted';
+    info.textContent = 'Variant base standards: ' + base.join(', ');
+    box.appendChild(info);
+  }
+
   // --- Render drive type options (if any) ---
   if (variant.details?.driveTypes?.length) {
     const group = document.createElement('div');
@@ -492,35 +507,16 @@ function renderVariantDetails(variant){
     });
     box.appendChild(group);
 
-    // ✅ Attach change listeners for each driveType checkbox
+    // Correct listener: inside the same function
     box.querySelectorAll('.drive-option input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
-        // Find the selected drive type object from JSON
         const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
-
-        // Store it in the variant temporarily for highlighting
         if (selectedDrive) variant.details.selectedDrive = selectedDrive;
-
-        // Re-run highlight logic to include this drive’s suggestAttributes
         applyVariantAttributeHints(variant);
       });
     });
   }
 
-  // Finally show the box once built
-  box.style.display = 'block';
-}
-
-  // Add event listeners *after* drive-type checkboxes exist
-  document.querySelectorAll('#variant-details input[type=checkbox]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const selectedDrive = (variant.details.driveTypes || []).find(d => d.id === cb.value);
-      if (selectedDrive) variant.details.selectedDrive = selectedDrive;
-      applyVariantAttributeHints(variant);
-    });
-  });
-
-  // If anything was rendered, show the box
   box.style.display = 'block';
 }
   
@@ -833,7 +829,7 @@ document.getElementById('product').addEventListener('change', () => {
     showMachineryBlock(true);
     populateMachineryVariants();
 
-    // NEW: if a variant is already selected (or defaulted), render its pills now
+    // If a variant is already selected (or defaulted), render its pills now
     if (variantSel && variantSel.value !== 'none') onMachVariantChange();
   } else {
     showMachineryBlock(false);
@@ -983,4 +979,5 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
