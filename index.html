@@ -494,18 +494,6 @@ function renderVariantDetails(variant) {
       pill.innerHTML = `<input type="checkbox" id="${d.id}" value="${d.id}"> ${d.label}`;
       wrap.appendChild(pill);
     });
-
-    // ✅ Drive-type listener — handles hydraulic/pneumatic highlights
-    wrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-      cb.addEventListener('change', () => {
-        const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
-        if (selectedDrive) {
-          variant.details.selectedDrive = selectedDrive;
-          console.log("Selected drive:", selectedDrive);
-          applyVariantAttributeHints(variant);
-        }
-      });
-    });
   }
 
   // --- Schema B (secondary detail sets, e.g. packaging/robot) ---
@@ -985,6 +973,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
