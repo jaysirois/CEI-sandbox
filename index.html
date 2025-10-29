@@ -478,21 +478,16 @@ function renderVariantDetails(variant) {
     box.appendChild(info);
   }
 
-  // helper to append a titled group
-  const addGroup = (title) => {
-    box.style.display = 'block';
-    const t = document.createElement('div');
-    t.className = 'group-title';
-    t.textContent = title;
-    box.appendChild(t);
-    const wrap = document.createElement('div');
-    box.appendChild(wrap);
-    return wrap;
-  };
-
   // --- Drive type options ---
   if (variant.details?.driveTypes?.length) {
-    const wrap = addGroup('Press drive type');
+    const title = document.createElement('div');
+    title.className = 'group-title';
+    title.textContent = 'Press drive type';
+    box.appendChild(title);
+
+    const wrap = document.createElement('div');
+    box.appendChild(wrap);
+
     variant.details.driveTypes.forEach(d => {
       const pill = document.createElement('label');
       pill.className = 'pill';
@@ -500,7 +495,7 @@ function renderVariantDetails(variant) {
       wrap.appendChild(pill);
     });
 
-    // ✅ Listen for drive selection
+    // ✅ Drive-type listener — handles hydraulic/pneumatic highlights
     wrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
         const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
@@ -513,88 +508,9 @@ function renderVariantDetails(variant) {
     });
   }
 
-  // --- Schema B: handle any other detail groups (if applicable) ---
-  if (variant.details && typeof variant.details === 'object') {
-    const d = variant.details;
-    const map = {
-      accessories: 'Lifting accessory type',
-      types: 'Packaging machine type (EN 415 series)',
-      families: 'Woodworking family',
-      dust: 'Dust / explosion risk'
-    };
-    for (const [key, arr] of Object.entries(d)) {
-      if (!Array.isArray(arr) || !arr.length || key === 'driveTypes') continue;
-      const wrap = addGroup(map[key] || key);
-      arr.forEach(c => {
-        const pill = document.createElement('label');
-        pill.className = 'pill';
-        pill.innerHTML = `<input type="checkbox" id="${variant.id}-${key}-${c.id}" data-std="${c.standard||''}"> ${c.label}`;
-        wrap.appendChild(pill);
-      });
-    }
-  }
-
   box.style.display = 'block';
 }
-  
-// helper to append a pill group
-  const addGroup = (title) => {
-    box.style.display = 'block';
-    const t = document.createElement('div');
-    t.className = 'group-title';
-    t.textContent = title;
-    box.appendChild(t);
-    const wrap = document.createElement('div');
-    box.appendChild(wrap);
-    return wrap;
-  };
-
-    // --- Schema A: object + options.*.choices (uses data-adds) ---
-  if (variant.options && typeof variant.options === 'object') {
-    for (const [gkey, g] of Object.entries(variant.options)) {
-      const wrap = addGroup(g.label || gkey);
-      (g.choices || []).forEach(choice => {
-        const id = `${variant.id}-opt-${gkey}-${choice.id}`;
-        const pill = document.createElement('label');
-        pill.className = 'pill';
-        pill.innerHTML = `<input type="checkbox" id="${id}" data-adds="${(choice.adds||[]).join('::')}"> ${choice.label}`;
-        wrap.appendChild(pill);
-      });
-    }
-  }
-
-  // --- Schema B: array + details.* (uses data-std) ---
-  if (variant.details && typeof variant.details === 'object') {
-    const d = variant.details;
-    const map = {
-      driveTypes: 'Press drive type',
-      accessories: 'Lifting accessory type',
-      types: 'Packaging machine type (EN 415 series)',
-      families: 'Woodworking family',
-      dust: 'Dust / explosion risk'
-    };
-    for (const [key, arr] of Object.entries(d)) {
-      if (!Array.isArray(arr) || !arr.length) continue;
-      const wrap = addGroup(map[key] || key);
-      arr.forEach(c => {
-        const id = `${variant.id}-det-${key}-${c.id}`;
-        const pill = document.createElement('label');
-        pill.className = 'pill';
-        pill.innerHTML = `<input type="checkbox" id="${id}" data-std="${c.standard||''}"> ${c.label}`;
-        wrap.appendChild(pill);
-      });
-    }
-    // Robots: collaborative flag (common in your details)
-    if (variant.id === 'robot' && d.collaborative) {
-      const wrap = addGroup('Robot mode / application');
-      const pill = document.createElement('label');
-      pill.className = 'pill';
-      pill.innerHTML = `<input type="checkbox" id="robot-cobot" data-std="ISO/TS 15066"> Collaborative operation (ISO/TS 15066)`;
-      wrap.appendChild(pill);
-    }
-  }
-}
-  
+    
  // Highlight (and optionally auto-check) the variant's suggested attributes
 function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
   // Clear previous
@@ -1005,4 +921,5 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
