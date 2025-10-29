@@ -555,24 +555,35 @@ function renderVariantDetails(variant) {
   box.style.display = 'block';
 }
     
- // Highlight (and optionally auto-check) the variant's suggested attributes
+// Highlight (and optionally auto-check) the variant's suggested attributes
 function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
-  // Clear previous
+  // 🔹 Clear all existing highlights first
   document.querySelectorAll('.attribute-item label')
     .forEach(l => l.classList.remove('auto-suggest'));
 
-  // Collect both top-level + drive-type hints
-  let hints = variant?.suggestAttributes || [];
-  if (variant?.details?.selectedDrive?.suggestAttributes) {
-    hints = hints.concat(variant.details.selectedDrive.suggestAttributes);
-  }
+  if (!variant) return;
 
-  // Apply highlights
+  // 🔹 Collect top-level suggested attributes (e.g., functional-safety)
+  let hints = Array.isArray(variant.suggestAttributes)
+    ? [...variant.suggestAttributes]
+    : [];
+
+  // 🔹 Add suggestions from all checked drive types
+  document.querySelectorAll('#variant-details input[type="checkbox"]:checked')
+    .forEach(cb => {
+      const drive = variant.details?.driveTypes?.find(d => d.id === cb.value);
+      if (drive?.suggestAttributes?.length) {
+        hints.push(...drive.suggestAttributes);
+      }
+    });
+
+  // 🔹 Apply the highlights (green outlines)
   hints.forEach(attrId => {
     const cb = document.getElementById(attrId);
     if (!cb) return;
     const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
     if (lbl) lbl.classList.add('auto-suggest');
+    if (autoCheck) cb.checked = true;
   });
 }
  
@@ -781,8 +792,18 @@ function applyCertificationHints(requirements, destinations, product) {
 function onMachVariantChange() {
   const sel = document.getElementById('mach-variant');
   const v = getCatalogVariant(sel?.value);
-  renderVariantDetails(v);       // draws drive-type pills
-  applyVariantAttributeHints(v); // green highlights for suggested attrs
+
+  // Render variant details (drive-type pills)
+  renderVariantDetails(v);
+
+  // Attach listeners for drive-type toggles (update hints live)
+  const driveBoxes = document.querySelectorAll('#variant-details input[type="checkbox"]');
+  driveBoxes.forEach(cb => {
+    cb.addEventListener('change', () => applyVariantAttributeHints(v));
+  });
+
+  // Initial highlights (e.g. functional safety)
+  applyVariantAttributeHints(v);
 }
   
 /* ------------ Wiring: product & variant changes ------------- */
@@ -964,6 +985,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
