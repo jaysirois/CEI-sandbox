@@ -16,9 +16,23 @@
     "outdoor-use"],
           "details": {
 "driveTypes": [
-  { "id": "mechanical", "label": "Mechanical press (add EN ISO 16092-2)", "standard": "EN ISO 16092-2" },
-  { "id": "hydraulic",  "label": "Hydraulic press (add EN ISO 16092-3)",  "standard": "EN ISO 16092-3", "suggestAttributes": ["hydraulic-fluid-power"] },
-  { "id": "pneumatic",  "label": "Pneumatic press (add EN ISO 16092-4)",  "standard": "EN ISO 16092-4", "suggestAttributes": ["pneumatic-fluid-power"] }
+  {
+    "id": "mechanical",
+    "label": "Mechanical press (add EN ISO 16092-2)",
+    "standard": "EN ISO 16092-2"
+  },
+  {
+    "id": "hydraulic",
+    "label": "Hydraulic press (add EN ISO 16092-3)",
+    "standard": "EN ISO 16092-3",
+    "suggestAttributes": ["hydraulic-power"]
+  },
+  {
+    "id": "pneumatic",
+    "label": "Pneumatic press (add EN ISO 16092-4)",
+    "standard": "EN ISO 16092-4",
+    "suggestAttributes": ["pneumatic-power"]
+  }
 ]
           }
         },
@@ -79,6 +93,7 @@
     }
   }
 }
+
 
 
 
