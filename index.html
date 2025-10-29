@@ -508,6 +508,50 @@ function renderVariantDetails(variant) {
     });
   }
 
+  // --- Schema B (secondary detail sets, e.g. packaging/robot) ---
+  if (variant.details && typeof variant.details === 'object') {
+    const d = variant.details;
+    const map = {
+      accessories: 'Lifting accessory type',
+      types: 'Packaging machine type (EN 415 series)',
+      families: 'Woodworking family',
+      dust: 'Dust / explosion risk'
+    };
+    for (const [key, arr] of Object.entries(d)) {
+      if (!Array.isArray(arr) || !arr.length || key === 'driveTypes') continue;
+      const title = document.createElement('div');
+      title.className = 'group-title';
+      title.textContent = map[key] || key;
+      box.appendChild(title);
+
+      const wrap = document.createElement('div');
+      box.appendChild(wrap);
+
+      arr.forEach(c => {
+        const pill = document.createElement('label');
+        pill.className = 'pill';
+        pill.innerHTML = `<input type="checkbox" id="${variant.id}-${key}-${c.id}" data-std="${c.standard||''}"> ${c.label}`;
+        wrap.appendChild(pill);
+      });
+    }
+
+    // Special case: robots
+    if (variant.id === 'robot' && d.collaborative) {
+      const title = document.createElement('div');
+      title.className = 'group-title';
+      title.textContent = 'Robot mode / application';
+      box.appendChild(title);
+
+      const wrap = document.createElement('div');
+      box.appendChild(wrap);
+
+      const pill = document.createElement('label');
+      pill.className = 'pill';
+      pill.innerHTML = `<input type="checkbox" id="robot-cobot" data-std="ISO/TS 15066"> Collaborative operation (ISO/TS 15066)`;
+      wrap.appendChild(pill);
+    }
+  }
+
   box.style.display = 'block';
 }
     
@@ -529,7 +573,6 @@ function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
     if (!cb) return;
     const lbl = cb.parentElement.querySelector('label') || cb.nextElementSibling;
     if (lbl) lbl.classList.add('auto-suggest');
-    if (autoCheck) cb.checked = true;
   });
 }
  
@@ -921,5 +964,6 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
