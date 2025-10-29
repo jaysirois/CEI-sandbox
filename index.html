@@ -478,34 +478,60 @@ function renderVariantDetails(variant) {
     box.appendChild(info);
   }
 
+  // helper to append a titled group
+  const addGroup = (title) => {
+    box.style.display = 'block';
+    const t = document.createElement('div');
+    t.className = 'group-title';
+    t.textContent = title;
+    box.appendChild(t);
+    const wrap = document.createElement('div');
+    box.appendChild(wrap);
+    return wrap;
+  };
+
   // --- Drive type options ---
   if (variant.details?.driveTypes?.length) {
-    const group = document.createElement('div');
-    group.innerHTML = '<b>Press drive type</b>';
+    const wrap = addGroup('Press drive type');
     variant.details.driveTypes.forEach(d => {
-      const wrap = document.createElement('div');
-      wrap.classList.add('drive-option');
-      wrap.innerHTML = `
-        <input type="checkbox" id="${d.id}" value="${d.id}">
-        <label for="${d.id}">${d.label}</label>
-      `;
-      group.appendChild(wrap);
+      const pill = document.createElement('label');
+      pill.className = 'pill';
+      pill.innerHTML = `<input type="checkbox" id="${d.id}" value="${d.id}"> ${d.label}`;
+      wrap.appendChild(pill);
     });
-    box.appendChild(group);
 
-    // Proper change listener for drive selection
-    box.querySelectorAll('.drive-option input[type="checkbox"]').forEach(cb => {
+    // ✅ Listen for drive selection
+    wrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
-        // Find this drive object from JSON
         const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
         if (selectedDrive) {
-          // Store it in variant so hints can see it
           variant.details.selectedDrive = selectedDrive;
           console.log("Selected drive:", selectedDrive);
           applyVariantAttributeHints(variant);
         }
       });
     });
+  }
+
+  // --- Schema B: handle any other detail groups (if applicable) ---
+  if (variant.details && typeof variant.details === 'object') {
+    const d = variant.details;
+    const map = {
+      accessories: 'Lifting accessory type',
+      types: 'Packaging machine type (EN 415 series)',
+      families: 'Woodworking family',
+      dust: 'Dust / explosion risk'
+    };
+    for (const [key, arr] of Object.entries(d)) {
+      if (!Array.isArray(arr) || !arr.length || key === 'driveTypes') continue;
+      const wrap = addGroup(map[key] || key);
+      arr.forEach(c => {
+        const pill = document.createElement('label');
+        pill.className = 'pill';
+        pill.innerHTML = `<input type="checkbox" id="${variant.id}-${key}-${c.id}" data-std="${c.standard||''}"> ${c.label}`;
+        wrap.appendChild(pill);
+      });
+    }
   }
 
   box.style.display = 'block';
@@ -979,3 +1005,4 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
