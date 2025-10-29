@@ -463,12 +463,13 @@ function populateMachineryVariants(){
 }
 
 // Render variant detail pills for BOTH schemas
-function renderVariantDetails(variant){
+function renderVariantDetails(variant) {
   const box = document.getElementById('variant-details');
   box.innerHTML = '';
   box.style.display = 'none';
   if (!variant) return;
 
+  // --- Base standards info ---
   const base = variant.base_standards || variant.baseStandards || [];
   if (base.length) {
     const info = document.createElement('div');
@@ -477,22 +478,7 @@ function renderVariantDetails(variant){
     box.appendChild(info);
   }
 
-// Render variant detail pills for BOTH schemas
-function renderVariantDetails(variant){
-  const box = document.getElementById('variant-details');
-  box.innerHTML = '';
-  box.style.display = 'none';
-  if (!variant) return;
-
-  const base = variant.base_standards || variant.baseStandards || [];
-  if (base.length) {
-    const info = document.createElement('div');
-    info.className = 'muted';
-    info.textContent = 'Variant base standards: ' + base.join(', ');
-    box.appendChild(info);
-  }
-
-  // --- Render drive type options (if any) ---
+  // --- Drive type options ---
   if (variant.details?.driveTypes?.length) {
     const group = document.createElement('div');
     group.innerHTML = '<b>Press drive type</b>';
@@ -507,12 +493,17 @@ function renderVariantDetails(variant){
     });
     box.appendChild(group);
 
-    // Correct listener: inside the same function
+    // Proper change listener for drive selection
     box.querySelectorAll('.drive-option input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
+        // Find this drive object from JSON
         const selectedDrive = variant.details.driveTypes.find(d => d.id === cb.value);
-        if (selectedDrive) variant.details.selectedDrive = selectedDrive;
-        applyVariantAttributeHints(variant);
+        if (selectedDrive) {
+          // Store it in variant so hints can see it
+          variant.details.selectedDrive = selectedDrive;
+          console.log("Selected drive:", selectedDrive);
+          applyVariantAttributeHints(variant);
+        }
       });
     });
   }
@@ -979,5 +970,6 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
