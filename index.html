@@ -945,31 +945,37 @@ function exportToCSV(){
   .addEventListener('change', onMachVariantChange);
   
 /* ------------ Init ------------ */
-(async function init(){
-  try { await loadCatalog(); }
-  catch (e) { console.error(e); alert('Could not load catalog.json — see console for details.'); return; }
+(async function init() {
+  try {
+    await loadCatalog();
+    console.log("✅ catalog.json loaded:", CATALOG);
+  } catch (e) {
+    console.error("⚠️ Could not load catalog.json — see console for details.", e);
+    alert('Could not load catalog.json — see console for details.');
+    return;
+  }
 
+  // --- 1. Initial UI setup ---
   updateAttributesVisibility();
   showMachineryBlock(false);
   toggleAdvancedSection();
 
-  // If page ships with Machinery selected, populate immediately
+  // --- 2. If Machinery is already preselected, show its variants ---
   const productSel = document.getElementById('product');
   if (productSel?.value === 'machinery') {
     showMachineryBlock(true);
     populateMachineryVariants();
   }
 
-  // Initial pass on load (run once, after listeners exist and UI is bootstrapped)
+  // --- 3. Run certification halo logic once after everything is ready ---
   applyCertificationHints(
     window.currentRequirementsAll || [],
     getSelectedDestinations(),
     document.getElementById('product').value
   );
+
+  console.log("✅ Init complete — UI ready");
 })();
 </script>
 </body>
 </html>
-
-
-
