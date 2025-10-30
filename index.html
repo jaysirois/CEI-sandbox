@@ -182,27 +182,6 @@
 </div>
       </div>
     </div>
-    <!-- Certifications -->
-    <div class="section">
-      <h2>Certification Bodies/Goals</h2>
-      <div class="certifications-list">
-        <div class="certification-item"><input type="checkbox" id="ce-marking" value="ce-marking"><label for="ce-marking">CE Marking (EU)</label></div>
-        <div class="certification-item"><input type="checkbox" id="ukca-ce-gb" value="ukca-ce-gb"><label for="ukca-ce-gb">UKCA / CE (Great Britain)</label></div>
-        <div class="certification-item"><input type="checkbox" id="ul-listing" value="ul-listing"><label for="ul-listing">NRTL Listing (UL/CSA/ETL) – US</label></div>
-        <div class="certification-item"><input type="checkbox" id="fda-approval" value="fda-approval"><label for="fda-approval">FDA (US medical devices)</label></div>
-        <div class="certification-item"><input type="checkbox" id="ce-notified-body" value="ce-notified-body"><label for="ce-notified-body">Notified Body / UK Approved Body</label></div>
-      </div>
-
-      <div id="gb-marking-plan" style="display:none;margin-top:8px">
-        <label for="gb-plan">GB marking plan</label>
-        <select id="gb-plan">
-          <option value="ce">CE only (permitted for most sectors)</option>
-          <option value="ukca">UKCA only</option>
-          <option value="dual">Dual marking (CE + UKCA)</option>
-        </select>
-      </div>
-    </div>
-
     <!-- Origin -->
     <div class="section">
       <h2>Place of manufacture (origin)</h2>
@@ -296,7 +275,28 @@
         </div>
       </div>
     </div>
+    
+    <!-- Certifications -->
+    <div class="section">
+      <h2>Certification Bodies/Goals</h2>
+      <div class="certifications-list">
+        <div class="certification-item"><input type="checkbox" id="ce-marking" value="ce-marking"><label for="ce-marking">CE Marking (EU)</label></div>
+        <div class="certification-item"><input type="checkbox" id="ukca-ce-gb" value="ukca-ce-gb"><label for="ukca-ce-gb">UKCA / CE (Great Britain)</label></div>
+        <div class="certification-item"><input type="checkbox" id="ul-listing" value="ul-listing"><label for="ul-listing">NRTL Listing (UL/CSA/ETL) – US</label></div>
+        <div class="certification-item"><input type="checkbox" id="fda-approval" value="fda-approval"><label for="fda-approval">FDA (US medical devices)</label></div>
+        <div class="certification-item"><input type="checkbox" id="ce-notified-body" value="ce-notified-body"><label for="ce-notified-body">Notified Body / UK Approved Body</label></div>
+      </div>
 
+      <div id="gb-marking-plan" style="display:none;margin-top:8px">
+        <label for="gb-plan">GB marking plan</label>
+        <select id="gb-plan">
+          <option value="ce">CE only (permitted for most sectors)</option>
+          <option value="ukca">UKCA only</option>
+          <option value="dual">Dual marking (CE + UKCA)</option>
+        </select>
+      </div>
+    </div>
+    
     <!-- Actions -->
     <div class="section"><button onclick="generateRoadmap()">Generate Compliance Roadmap</button></div>
 
@@ -979,6 +979,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
