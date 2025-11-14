@@ -574,7 +574,29 @@ function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
     if (autoCheck) cb.checked = true;
   });
 }
- 
+
+/* ------------ NEW: Split standards vs directives ------------- */
+function getHarmonisedStandards(product, attrs, destinations) {
+  const res = [];
+  const add = (t) => res.push({ text: t });
+
+  if (product === 'machinery') {
+    add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.');
+    // You can easily add more generic harmonised standards here later
+  }
+  // Future products can be added here
+  return res;
+}
+
+function getDirectivesAndRegulations(product, attrs, destinations) {
+  // Reuse the existing big function but filter out the pure standards we already moved
+  const all = baseFrameworks(product, attrs, destinations);
+  const pureStandardTexts = [
+    'Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.'
+  ];
+  return all.filter(item => !pureStandardTexts.some(txt => item.text.includes(txt)));
+}
+  
 /* ------------ Rules engine: frameworks ------------- */
 const ukMarkingPolicy = { general:{ceRecognition:'indefinite'} };
 
@@ -867,9 +889,14 @@ function generateRoadmap() {
 
   let requirements = [];
 
-  // --- Standards first ---
-  requirements = requirements.concat(variantStandards(product)); // Variant type-C standards
-  requirements = requirements.concat(baseFrameworks(product, attrs, destinations)); // Base EN standards & directives
+   // === 1. Variant-specific Type-C standards (always first) ===
+  requirements = requirements.concat(variantStandards(product));
+
+  // === 2. Harmonised / general safety standards (EN ISO 12100, 60204-1, etc.) ===
+  requirements = requirements.concat(getHarmonisedStandards(product, attrs, destinations));
+
+  // === 3. Directives & Regulations (2006/42/EC, LVD, EMC, etc.) – now always after standards ===
+  requirements = requirements.concat(getDirectivesAndRegulations(product, attrs, destinations));
 
   // --- Country-specific or additional rules ---
   if (destinations.includes('italy') && ['power-installations', 'lightning-protection', 'photovoltaic-systems'].includes(product)) {
@@ -979,6 +1006,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
