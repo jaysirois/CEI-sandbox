@@ -578,13 +578,12 @@ function applyVariantAttributeHints(variant, { autoCheck = false } = {}) {
 /* ------------ NEW: Split standards vs directives ------------- */
 function getHarmonisedStandards(product, attrs, destinations) {
   const res = [];
-  const add = (t) => res.push({ text: t });
+  const add = (t, markets = []) => res.push({ text: t, specificMarkets: markets });
 
   if (product === 'machinery') {
-    add('Apply EN ISO 12100 risk assessment and EN 60204-1 for electrical equipment of machinery.');
-    // You can easily add more generic harmonised standards here later
+    add('EN ISO 12100:2010 – Safety of machinery – General principles for design – Risk assessment and risk reduction', ['eu']);
+    add('EN 60204-1:2018 – Safety of machinery – Electrical equipment of machines – Part 1: General requirements', ['eu']);
   }
-  // Future products can be added here
   return res;
 }
 
@@ -1006,6 +1005,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
