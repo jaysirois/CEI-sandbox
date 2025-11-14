@@ -581,9 +581,12 @@ function getHarmonisedStandards(product, attrs, destinations) {
   const add = (t, markets = []) => res.push({ text: t, specificMarkets: markets });
 
   if (product === 'machinery') {
+    // Type-C variant standards come first (already added by variantStandards())
+    // → then the two mandatory Type-B harmonised standards
     add('EN ISO 12100:2010 – Safety of machinery – General principles for design – Risk assessment and risk reduction', ['eu']);
     add('EN 60204-1:2018 – Safety of machinery – Electrical equipment of machines – Part 1: General requirements', ['eu']);
   }
+
   return res;
 }
 
@@ -1005,6 +1008,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
