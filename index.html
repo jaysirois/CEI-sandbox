@@ -891,14 +891,14 @@ function generateRoadmap() {
 
   let requirements = [];
 
-   // === 1. Variant-specific Type-C standards (always first) ===
-  requirements = requirements.concat(variantStandards(product));
+// === 1. Directives & Regulations (2006/42/EC, LVD, EMC, etc.) ===
+requirements = requirements.concat(getDirectivesAndRegulations(product, attrs, destinations));
 
-  // === 2. Harmonised / general safety standards (EN ISO 12100, 60204-1, etc.) ===
-  requirements = requirements.concat(getHarmonisedStandards(product, attrs, destinations));
+// === 2. Harmonised / general safety standards (Type-A / Type-B) (EN ISO 12100, 60204-1, etc.) ===
+requirements = requirements.concat(getHarmonisedStandards(product, attrs, destinations));
 
-  // === 3. Directives & Regulations (2006/42/EC, LVD, EMC, etc.) – now always after standards ===
-  requirements = requirements.concat(getDirectivesAndRegulations(product, attrs, destinations));
+// === 3. Variant-specific Type-C standards ===
+requirements = requirements.concat(variantStandards(product));
 
   // --- Country-specific or additional rules ---
   if (destinations.includes('italy') && ['power-installations', 'lightning-protection', 'photovoltaic-systems'].includes(product)) {
@@ -1008,6 +1008,7 @@ function exportToCSV(){
 </script>
 </body>
 </html>
+
 
 
 
